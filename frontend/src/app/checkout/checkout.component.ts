@@ -94,7 +94,7 @@ export class CheckoutComponent {
     this.orderApi.createOrder(request).subscribe({
       next: (order) => {
         this.cartService.clear();
-        this.router.navigate(['/order-confirmation', order.id]);
+        this.router.navigate(['/order-confirmation', order.publicToken]);
       },
       error: (err: { error?: ApiError }) => {
         this.submitting.set(false);

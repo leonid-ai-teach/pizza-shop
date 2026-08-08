@@ -1,0 +1,43 @@
+<h1>Admins verwalten</h1>
+
+<p class="hint">
+  Freigegebene Google-Konten. Neue Admins müssen vorab eingeladen werden, bevor sie sich zum
+  ersten Mal anmelden können.
+</p>
+
+@if (error()) {
+  <p class="error" data-testid="admins-error">{{ error() }}</p>
+}
+
+<table class="admins">
+  <thead>
+    <tr>
+      <th>E-Mail</th>
+      <th>Freigegeben am</th>
+      <th>Freigegeben von</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (admin of admins(); track admin.email) {
+      <tr>
+        <td>{{ admin.email }}</td>
+        <td>{{ admin.approvedAt | date: 'dd.MM.yyyy HH:mm' }}</td>
+        <td>{{ admin.approvedBy }}</td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+<h2>Neuen Admin einladen</h2>
+
+<form [formGroup]="form" (ngSubmit)="invite()">
+  <label>
+    E-Mail-Adresse
+    <input type="email" formControlName="email" data-testid="invite-email" />
+  </label>
+  @if (form.controls.email.invalid && form.controls.email.touched) {
+    <span class="field-error">Bitte geben Sie eine gültige E-Mail-Adresse ein.</span>
+  }
+
+  <button type="submit" data-testid="invite-admin">Einladen</button>
+</form>

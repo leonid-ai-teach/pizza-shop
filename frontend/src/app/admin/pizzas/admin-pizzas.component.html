@@ -1,0 +1,99 @@
+<h1>Pizzen verwalten</h1>
+
+@if (error()) {
+  <p class="error" data-testid="pizzas-error">{{ error() }}</p>
+}
+
+<table class="catalog">
+  <thead>
+    <tr>
+      <th>Sortierung</th>
+      <th>Name</th>
+      <th>Preis</th>
+      <th>Toppings</th>
+      <th>Status</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (pizza of pizzas(); track pizza.id) {
+      <tr [class.inactive]="!pizza.active">
+        <td>{{ pizza.sortOrder }}</td>
+        <td>{{ pizza.name }}</td>
+        <td>{{ pizza.price | number: '1.2-2' }} &euro;</td>
+        <td>{{ pizza.toppings.length }}</td>
+        <td>{{ pizza.active ? 'Aktiv' : 'Inaktiv' }}</td>
+        <td>
+          <button type="button" [attr.data-testid]="'edit-pizza-' + pizza.id" (click)="startEdit(pizza)">
+            Bearbeiten
+          </button>
+          <button
+            type="button"
+            [attr.data-testid]="'toggle-pizza-' + pizza.id"
+            (click)="toggleActive(pizza)"
+          >
+            {{ pizza.active ? 'Deaktivieren' : 'Aktivieren' }}
+          </button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+<h2>{{ editingId() ? 'Pizza bearbeiten' : 'Neue Pizza anlegen' }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="save()">
+  <label>
+    Name
+    <input type="text" formControlName="name" data-testid="pizza-name" />
+  </label>
+  @if (form.controls.name.invalid && form.controls.name.touched) {
+    <span class="field-error">Dieses Feld ist erforderlich.</span>
+  }
+
+  <label>
+    Beschreibung
+    <input type="text" formControlName="description" data-testid="pizza-description" />
+  </label>
+
+  <label>
+    Preis (&euro;)
+    <input type="number" step="0.01" formControlName="price" data-testid="pizza-price" />
+  </label>
+  @if (form.controls.price.invalid && form.controls.price.touched) {
+    <span class="field-error">Bitte geben Sie einen Preis größer als 0 an.</span>
+  }
+
+  <label>
+    Bild-URL
+    <input type="url" formControlName="imagePath" data-testid="pizza-image" />
+  </label>
+
+  <label>
+    Sortierreihenfolge
+    <input type="number" formControlName="sortOrder" data-testid="pizza-sort-order" />
+  </label>
+
+  <fieldset>
+    <legend>Verfügbare Toppings</legend>
+    @for (topping of toppings(); track topping.id) {
+      <label class="topping">
+        <input
+          type="checkbox"
+          [attr.data-testid]="'assign-topping-' + topping.id"
+          [checked]="isToppingSelected(topping.id)"
+          (change)="toggleTopping(topping.id)"
+        />
+        {{ topping.name }}
+        @if (!topping.active) {
+          <span class="muted">(inaktiv)</span>
+        }
+      </label>
+    }
+  </fieldset>
+
+  <button type="submit" data-testid="save-pizza">Speichern</button>
+  @if (editingId()) {
+    <button type="button" data-testid="cancel-edit-pizza" (click)="startCreate()">Abbrechen</button>
+  }
+</form>

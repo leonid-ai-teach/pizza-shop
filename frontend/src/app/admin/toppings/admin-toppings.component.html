@@ -1,0 +1,72 @@
+<h1>Toppings verwalten</h1>
+
+@if (error()) {
+  <p class="error" data-testid="toppings-error">{{ error() }}</p>
+}
+
+<table class="catalog">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Beschreibung</th>
+      <th>Preis</th>
+      <th>Status</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (topping of toppings(); track topping.id) {
+      <tr [class.inactive]="!topping.active">
+        <td>{{ topping.name }}</td>
+        <td>{{ topping.description }}</td>
+        <td>{{ topping.price | number: '1.2-2' }} &euro;</td>
+        <td>{{ topping.active ? 'Aktiv' : 'Inaktiv' }}</td>
+        <td>
+          <button
+            type="button"
+            [attr.data-testid]="'edit-topping-' + topping.id"
+            (click)="startEdit(topping)"
+          >
+            Bearbeiten
+          </button>
+          <button
+            type="button"
+            [attr.data-testid]="'toggle-topping-' + topping.id"
+            (click)="toggleActive(topping)"
+          >
+            {{ topping.active ? 'Deaktivieren' : 'Aktivieren' }}
+          </button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+<h2>{{ editingId() ? 'Topping bearbeiten' : 'Neues Topping anlegen' }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="save()">
+  <label>
+    Name
+    <input type="text" formControlName="name" data-testid="topping-name" />
+  </label>
+  @if (form.controls.name.invalid && form.controls.name.touched) {
+    <span class="field-error">Dieses Feld ist erforderlich.</span>
+  }
+
+  <label>
+    Beschreibung
+    <input type="text" formControlName="description" data-testid="topping-description" />
+  </label>
+
+  <label>
+    Preis (&euro;)
+    <input type="number" step="0.01" formControlName="price" data-testid="topping-price" />
+  </label>
+
+  <button type="submit" data-testid="save-topping">Speichern</button>
+  @if (editingId()) {
+    <button type="button" data-testid="cancel-edit-topping" (click)="startCreate()">
+      Abbrechen
+    </button>
+  }
+</form>

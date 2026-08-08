@@ -40,7 +40,7 @@ describe('CheckoutComponent', () => {
     await TestBed.configureTestingModule({
       imports: [CheckoutComponent],
       providers: [
-        provideRouter([{ path: 'cart', redirectTo: '' }, { path: 'order-confirmation/:id', redirectTo: '' }]),
+        provideRouter([{ path: 'cart', redirectTo: '' }, { path: 'order-confirmation/:token', redirectTo: '' }]),
         provideHttpClient(),
         provideHttpClientTesting(),
       ],
@@ -133,6 +133,7 @@ describe('CheckoutComponent', () => {
     const response: OrderResponse = {
       id: 42,
       orderNumber: 100042,
+      publicToken: 'token-42',
       createdAt: new Date().toISOString(),
       status: 'NEW',
       orderType: 'PICKUP',
@@ -148,7 +149,7 @@ describe('CheckoutComponent', () => {
     };
     req.flush(response);
 
-    expect(navigateSpy).toHaveBeenCalledWith(['/order-confirmation', 42]);
+    expect(navigateSpy).toHaveBeenCalledWith(['/order-confirmation', 'token-42']);
     expect(cartService.items()).toEqual([]);
   });
 
@@ -179,6 +180,7 @@ describe('CheckoutComponent', () => {
     req.flush({
       id: 43,
       orderNumber: 100043,
+      publicToken: 'token-43',
       createdAt: new Date().toISOString(),
       status: 'NEW',
       orderType: 'DELIVERY',

@@ -10,5 +10,9 @@ export const routes: Routes = [
   { path: 'pizza/:id', component: PizzaDetailComponent },
   { path: 'cart', component: CartPageComponent },
   { path: 'checkout', component: CheckoutComponent },
-  { path: 'order-confirmation/:id', component: OrderConfirmationComponent },
+  { path: 'order-confirmation/:token', component: OrderConfirmationComponent },
+  {
+    path: 'admin',
+    loadChildren: () => import('./admin/admin.routes').then((m) => m.adminRoutes),
+  },
 ];

@@ -11,6 +11,7 @@ import java.util.List;
 public record OrderResponse(
         Long id,
         Long orderNumber,
+        String publicToken,
         Instant createdAt,
         OrderStatus status,
         OrderType orderType,

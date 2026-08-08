@@ -260,9 +260,9 @@ class OrderApiTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
-        long orderId = objectMapper.readTree(body).get("id").asLong();
+        String token = objectMapper.readTree(body).get("publicToken").asText();
 
-        mockMvc.perform(get("/api/orders/{id}", orderId))
+        mockMvc.perform(get("/api/orders/{token}", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalPrice").value(8.50))
                 .andExpect(jsonPath("$.items[0].basePrice").value(7.50));
@@ -270,8 +270,25 @@ class OrderApiTest {
 
     @Test
     void nonexistentOrderReturnsNotFound() throws Exception {
-        mockMvc.perform(get("/api/orders/{id}", 999_999L))
+        mockMvc.perform(get("/api/orders/{token}", "00000000-0000-0000-0000-000000000000"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("NOT_FOUND"));
+    }
+
+    @Test
+    void ordersCannotBeEnumeratedByTheirSequentialId() throws Exception {
+        CreateOrderRequest request = new CreateOrderRequest(
+                OrderType.PICKUP, pickupCustomer(),
+                List.of(new OrderItemRequest(pizza.getId(), 1, List.of())));
+        String body = mockMvc.perform(post("/api/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        long orderId = objectMapper.readTree(body).get("id").asLong();
+
+        // Guessing the primary key must not reveal another customer's contact details.
+        mockMvc.perform(get("/api/orders/{token}", String.valueOf(orderId)))
+                .andExpect(status().isNotFound());
     }
 }

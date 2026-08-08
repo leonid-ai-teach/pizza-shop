@@ -3,8 +3,10 @@ package com.pizzashop.exception;
 import com.pizzashop.dto.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -31,10 +33,25 @@ public class GlobalExceptionHandler {
         return errorResponse(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", message);
     }
 
+    /** Malformed JSON or an unparseable value (e.g. an unknown enum constant) is a client error. */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleUnreadableBody(HttpMessageNotReadableException ex) {
+        return errorResponse(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR",
+                "The request body is malformed or contains an invalid value.");
+    }
+
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
         return errorResponse(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR",
                 "Invalid value for parameter '" + ex.getName() + "'.");
+    }
+
+    /** Someone else changed the same record first; the caller should reload and retry. */
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ResponseEntity<ErrorResponse> handleConcurrentModification(
+            OptimisticLockingFailureException ex) {
+        return errorResponse(HttpStatus.CONFLICT, "CONCURRENT_MODIFICATION",
+                "This record was changed by someone else. Please reload and try again.");
     }
 
     @ExceptionHandler(Exception.class)

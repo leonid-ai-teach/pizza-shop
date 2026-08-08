@@ -43,6 +43,8 @@ export interface OrderItemResponse {
 export interface OrderResponse {
   id: number;
   orderNumber: number;
+  /** Unguessable handle used in the public confirmation URL instead of the sequential id. */
+  publicToken: string;
   createdAt: string;
   status: OrderStatus;
   orderType: OrderType;

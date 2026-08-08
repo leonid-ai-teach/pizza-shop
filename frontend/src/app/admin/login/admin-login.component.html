@@ -1,0 +1,13 @@
+<h1>Admin-Anmeldung</h1>
+
+@if (loginFailed()) {
+  <p class="error" data-testid="login-error">
+    Anmeldung fehlgeschlagen. Dieses Google-Konto ist nicht für den Admin-Bereich freigegeben.
+  </p>
+}
+
+<p>Bitte melden Sie sich mit Ihrem freigegebenen Google-Konto an.</p>
+
+<button type="button" data-testid="google-login" (click)="startGoogleLogin()">
+  Mit Google anmelden
+</button>

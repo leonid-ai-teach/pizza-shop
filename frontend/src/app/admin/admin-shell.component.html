@@ -1,0 +1,19 @@
+<div class="admin-bar">
+  <nav>
+    <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+      >Übersicht</a
+    >
+    <a routerLink="/admin/orders" routerLinkActive="active">Bestellungen</a>
+    <a routerLink="/admin/pizzas" routerLinkActive="active">Pizzen</a>
+    <a routerLink="/admin/toppings" routerLinkActive="active">Toppings</a>
+    <a routerLink="/admin/admins" routerLinkActive="active">Admins</a>
+  </nav>
+  <div class="admin-identity">
+    @if (adminEmail(); as email) {
+      <span data-testid="admin-email">{{ email }}</span>
+    }
+    <button type="button" data-testid="logout" (click)="logout()">Abmelden</button>
+  </div>
+</div>
+
+<router-outlet />

@@ -11,7 +11,7 @@ import com.pizzashop.entity.OrderItemTopping;
 import com.pizzashop.entity.OrderType;
 import com.pizzashop.entity.Pizza;
 import com.pizzashop.entity.Topping;
-import com.pizzashop.exception.OrderValidationException;
+import com.pizzashop.exception.ValidationException;
 import com.pizzashop.exception.ResourceNotFoundException;
 import com.pizzashop.mapper.OrderMapper;
 import com.pizzashop.repository.OrderRepository;
@@ -56,10 +56,15 @@ public class OrderService {
         return OrderMapper.toResponse(saved);
     }
 
+    /**
+     * Looks an order up by its unguessable public token. Deliberately not by primary key: this
+     * endpoint is unauthenticated, and sequential ids would let anyone enumerate other
+     * customers' orders and their contact and delivery details.
+     */
     @Transactional(readOnly = true)
-    public OrderResponse getOrder(Long id) {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + id));
+    public OrderResponse getOrderByPublicToken(String publicToken) {
+        Order order = orderRepository.findByPublicToken(publicToken)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found."));
         return OrderMapper.toResponse(order);
     }
 
@@ -69,7 +74,7 @@ public class OrderService {
         }
         if (!StringUtils.hasText(customerData.street()) || !StringUtils.hasText(customerData.houseNumber())
                 || !StringUtils.hasText(customerData.postalCode()) || !StringUtils.hasText(customerData.city())) {
-            throw new OrderValidationException(
+            throw new ValidationException(
                     "Street, house number, postal code and city are required for delivery orders.");
         }
     }
@@ -77,7 +82,7 @@ public class OrderService {
     private OrderItem buildOrderItem(OrderItemRequest itemRequest) {
         Pizza pizza = pizzaRepository.findById(itemRequest.pizzaId())
                 .filter(Pizza::isActive)
-                .orElseThrow(() -> new OrderValidationException("Invalid or inactive pizza: " + itemRequest.pizzaId()));
+                .orElseThrow(() -> new ValidationException("Invalid or inactive pizza: " + itemRequest.pizzaId()));
 
         BigDecimal basePrice = pizza.getPrice();
         // A pizza's own toppings collection already carries active status and the
@@ -105,7 +110,7 @@ public class OrderService {
         return pizza.getToppings().stream()
                 .filter(topping -> topping.getId().equals(toppingId) && topping.isActive())
                 .findFirst()
-                .orElseThrow(() -> new OrderValidationException(
+                .orElseThrow(() -> new ValidationException(
                         "Invalid, inactive or unavailable topping " + toppingId + " for pizza " + pizza.getId()));
     }
 

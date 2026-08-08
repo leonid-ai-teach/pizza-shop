@@ -39,6 +39,16 @@ public class Topping {
         this.active = active;
     }
 
+    public void updateDetails(String name, String description, BigDecimal price) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
     public Long getId() {
         return id;
     }

@@ -8,4 +8,6 @@ import java.util.List;
 public interface ToppingRepository extends JpaRepository<Topping, Long> {
 
     List<Topping> findByActiveTrueOrderByNameAsc();
+
+    List<Topping> findAllByOrderByNameAsc();
 }

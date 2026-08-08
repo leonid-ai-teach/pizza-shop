@@ -12,3 +12,16 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration/schema,classpath:db/migration/seed
+
+# Google OAuth2 is configured entirely through environment variables, because declaring an
+# empty registration here would fail startup validation ("client id must not be empty") when
+# no credentials are set. Google is a provider Spring Boot knows built-in, so supplying just
+# these two variables is enough (see .env.example):
+#   SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID
+#   SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET
+
+pizzashop:
+  admin:
+    bootstrap-email: ${ADMIN_BOOTSTRAP_EMAIL:}
+  # Where the SPA lives; used for CORS and for post-login/logout redirects.
+  frontend-url: ${FRONTEND_URL:http://localhost:4200}

@@ -1,0 +1,35 @@
+.catalog {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+
+.catalog th,
+.catalog td {
+  text-align: left;
+  padding: 0.5rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.catalog tr.inactive {
+  color: #999;
+}
+
+.catalog button {
+  margin-right: 0.5rem;
+}
+
+form label {
+  display: block;
+  margin: 0.5rem 0;
+}
+
+.field-error {
+  display: block;
+  color: #b00020;
+  font-size: 0.85rem;
+}
+
+.error {
+  color: #b00020;
+}

@@ -19,8 +19,8 @@ export class OrderConfirmationComponent {
   protected readonly loadError = signal(false);
 
   constructor() {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.orderApi.getOrder(id).subscribe({
+    const token = this.route.snapshot.paramMap.get('token') ?? '';
+    this.orderApi.getOrder(token).subscribe({
       next: (order) => this.order.set(order),
       error: () => this.loadError.set(true),
     });

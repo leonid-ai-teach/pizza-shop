@@ -9,7 +9,7 @@
   <p>Bestellart: {{ orderTypeLabel(o.orderType) }}</p>
 
   <ul class="order-items">
-    @for (item of o.items; track item.pizzaId) {
+    @for (item of o.items; track $index) {
       <li>
         {{ item.quantity }}x {{ item.pizzaName }}
         @if (item.toppings.length > 0) {

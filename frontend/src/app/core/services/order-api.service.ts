@@ -11,7 +11,8 @@ export class OrderApiService {
     return this.http.post<OrderResponse>('/api/orders', request);
   }
 
-  getOrder(id: number): Observable<OrderResponse> {
-    return this.http.get<OrderResponse>(`/api/orders/${id}`);
+  /** Confirmations are addressed by unguessable token, never by the sequential order id. */
+  getOrder(publicToken: string): Observable<OrderResponse> {
+    return this.http.get<OrderResponse>(`/api/orders/${encodeURIComponent(publicToken)}`);
   }
 }

@@ -10,3 +10,9 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration/schema
+
+pizzashop:
+  admin:
+    # Blank so tests control the allowlist themselves rather than inheriting a bootstrap admin.
+    bootstrap-email: ""
+  frontend-url: http://localhost:4200

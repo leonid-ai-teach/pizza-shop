@@ -1,0 +1,39 @@
+.filter {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.orders {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.orders th,
+.orders td {
+  text-align: left;
+  padding: 0.5rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.order-detail {
+  margin-top: 2rem;
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.order-detail button {
+  margin-right: 0.5rem;
+}
+
+.toppings {
+  color: #666;
+}
+
+.total {
+  font-weight: 700;
+}
+
+.error {
+  color: #b00020;
+}

@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -59,6 +60,24 @@ public class Pizza {
         this.imagePath = imagePath;
         this.active = active;
         this.sortOrder = sortOrder;
+    }
+
+    public void updateDetails(String name, String description, BigDecimal price,
+                              String imagePath, int sortOrder) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.imagePath = imagePath;
+        this.sortOrder = sortOrder;
+    }
+
+    public void replaceToppings(Collection<Topping> newToppings) {
+        toppings.clear();
+        toppings.addAll(newToppings);
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public Long getId() {

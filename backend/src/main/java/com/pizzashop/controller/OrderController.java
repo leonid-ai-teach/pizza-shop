@@ -29,8 +29,9 @@ public class OrderController {
         return orderService.createOrder(request);
     }
 
-    @GetMapping("/{id}")
-    public OrderResponse getOrder(@PathVariable Long id) {
-        return orderService.getOrder(id);
+    /** Public confirmation lookup, addressed by unguessable token rather than by id. */
+    @GetMapping("/{publicToken}")
+    public OrderResponse getOrder(@PathVariable String publicToken) {
+        return orderService.getOrderByPublicToken(publicToken);
     }
 }

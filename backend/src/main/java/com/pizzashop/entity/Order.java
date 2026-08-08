@@ -12,11 +12,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "orders")
@@ -28,6 +30,14 @@ public class Order {
 
     @Column(name = "order_number", nullable = false, unique = true)
     private Long orderNumber;
+
+    /**
+     * Unguessable handle for the public confirmation page. The sequential id must never appear
+     * in a public URL, or anyone could enumerate other customers' orders and their contact and
+     * delivery details.
+     */
+    @Column(name = "public_token", nullable = false, unique = true, updatable = false)
+    private String publicToken;
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
@@ -50,6 +60,11 @@ public class Order {
     @Column(name = "total_price", nullable = false)
     private BigDecimal totalPrice;
 
+    /** Makes concurrent status changes fail loudly instead of silently overwriting each other. */
+    @Version
+    @Column(nullable = false)
+    private long version;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id ASC")
     private List<OrderItem> items = new ArrayList<>();
@@ -65,6 +80,7 @@ public class Order {
         this.paymentStatus = PaymentStatus.NOT_REQUIRED;
         this.createdAt = Instant.now();
         this.totalPrice = BigDecimal.ZERO;
+        this.publicToken = UUID.randomUUID().toString();
     }
 
     public void addItem(OrderItem item) {
@@ -76,12 +92,28 @@ public class Order {
         this.totalPrice = totalPrice;
     }
 
+    /**
+     * Moves the order to {@code target}, refusing any transition the lifecycle disallows so an
+     * order can never be resurrected from a terminal status or skip a step.
+     */
+    public void changeStatusTo(OrderStatus target) {
+        if (!status.canTransitionTo(target)) {
+            throw new IllegalStateException(
+                    "Cannot change order status from " + status + " to " + target + ".");
+        }
+        this.status = target;
+    }
+
     public Long getId() {
         return id;
     }
 
     public Long getOrderNumber() {
         return orderNumber;
+    }
+
+    public String getPublicToken() {
+        return publicToken;
     }
 
     public Instant getCreatedAt() {

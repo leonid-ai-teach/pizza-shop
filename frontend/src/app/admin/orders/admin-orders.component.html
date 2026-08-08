@@ -1,0 +1,107 @@
+<h1>Bestellungen</h1>
+
+@if (error()) {
+  <p class="error" data-testid="orders-error">{{ error() }}</p>
+}
+
+<label class="filter">
+  Status filtern
+  <select data-testid="status-filter" (change)="applyFilter($any($event.target).value)">
+    <option value="" [selected]="statusFilter() === ''">Alle</option>
+    @for (status of statuses; track status) {
+      <option [value]="status" [selected]="statusFilter() === status">
+        {{ statusLabel(status) }}
+      </option>
+    }
+  </select>
+</label>
+
+@if (orders().length === 0) {
+  <p data-testid="no-orders">Keine Bestellungen gefunden.</p>
+} @else {
+  <table class="orders">
+    <thead>
+      <tr>
+        <th>Nr.</th>
+        <th>Kunde</th>
+        <th>Art</th>
+        <th>Status</th>
+        <th>Summe</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (order of orders(); track order.id) {
+        <tr>
+          <td>#{{ order.orderNumber }}</td>
+          <td>{{ order.customerData.firstName }} {{ order.customerData.lastName }}</td>
+          <td>{{ orderTypeLabel(order.orderType) }}</td>
+          <td>{{ statusLabel(order.status) }}</td>
+          <td>{{ order.totalPrice | number: '1.2-2' }} &euro;</td>
+          <td>
+            <button
+              type="button"
+              [attr.data-testid]="'view-order-' + order.id"
+              (click)="selectOrder(order)"
+            >
+              Details
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
+
+@if (selectedOrder(); as order) {
+  <section class="order-detail" data-testid="order-detail">
+    <h2>Bestellung #{{ order.orderNumber }}</h2>
+    <p>Status: {{ statusLabel(order.status) }}</p>
+    <p>Bestellart: {{ orderTypeLabel(order.orderType) }}</p>
+
+    <h3>Kundendaten</h3>
+    <p>
+      {{ order.customerData.firstName }} {{ order.customerData.lastName }}<br />
+      {{ order.customerData.phone }} &middot; {{ order.customerData.email }}
+    </p>
+    @if (order.orderType === 'DELIVERY') {
+      <p data-testid="delivery-address">
+        {{ order.customerData.street }} {{ order.customerData.houseNumber }}<br />
+        {{ order.customerData.postalCode }} {{ order.customerData.city }}
+      </p>
+    }
+
+    <h3>Positionen</h3>
+    <ul>
+      <!-- Tracked by position: one order can hold the same pizza twice with different
+           toppings, so pizzaId is not unique within items. -->
+      @for (item of order.items; track $index) {
+        <li>
+          {{ item.quantity }}x {{ item.pizzaName }}
+          @if (item.toppings.length > 0) {
+            <span class="toppings">({{ item.toppings.map((t) => t.name).join(', ') }})</span>
+          }
+          &mdash; {{ item.itemTotalPrice | number: '1.2-2' }} &euro;
+        </li>
+      }
+    </ul>
+    <p class="total">Gesamtsumme: {{ order.totalPrice | number: '1.2-2' }} &euro;</p>
+
+    <h3>Status ändern</h3>
+    @if (selectedOrderTransitions().length === 0) {
+      <p data-testid="no-transitions">
+        Diese Bestellung ist abgeschlossen; der Status kann nicht mehr geändert werden.
+      </p>
+    } @else {
+      @for (target of selectedOrderTransitions(); track target) {
+        <button
+          type="button"
+          [attr.data-testid]="'set-status-' + target"
+          (click)="changeStatus(order, target)"
+        >
+          {{ statusLabel(target) }}
+        </button>
+      }
+    }
+  </section>
+}

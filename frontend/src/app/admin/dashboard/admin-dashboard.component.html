@@ -1,0 +1,26 @@
+<h1>Übersicht</h1>
+
+@if (loadError()) {
+  <p class="error">Die Kennzahlen konnten nicht geladen werden.</p>
+}
+
+@if (summary(); as s) {
+  <div class="kpi-row">
+    <a class="kpi" routerLink="/admin/orders" [queryParams]="{ status: 'NEW' }">
+      <span class="kpi-label">Neue Bestellungen</span>
+      <span class="kpi-value" data-testid="kpi-new">{{ s.newCount }}</span>
+    </a>
+    <a class="kpi" routerLink="/admin/orders" [queryParams]="{ status: 'IN_PROGRESS' }">
+      <span class="kpi-label">In Bearbeitung</span>
+      <span class="kpi-value" data-testid="kpi-in-progress">{{ s.inProgressCount }}</span>
+    </a>
+    <a class="kpi" routerLink="/admin/orders" [queryParams]="{ status: 'DONE' }">
+      <span class="kpi-label">Fertiggestellt</span>
+      <span class="kpi-value" data-testid="kpi-done">{{ s.doneCount }}</span>
+    </a>
+  </div>
+
+  <a routerLink="/admin/orders" [queryParams]="{ status: 'NEW' }" data-testid="incoming-orders-link">
+    Zu den eingehenden Bestellungen
+  </a>
+}
