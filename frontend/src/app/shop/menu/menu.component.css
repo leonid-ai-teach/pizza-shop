@@ -1,0 +1,22 @@
+.pizza-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.pizza-card {
+  display: block;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.pizza-card .price {
+  font-weight: 700;
+}
+
+.error {
+  color: #b00020;
+}

@@ -1,0 +1,25 @@
+.order-number {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.order-items {
+  list-style: none;
+  padding: 0;
+}
+
+.order-items li {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.item-total {
+  margin-left: auto;
+}
+
+.total {
+  font-weight: 700;
+  font-size: 1.1rem;
+}

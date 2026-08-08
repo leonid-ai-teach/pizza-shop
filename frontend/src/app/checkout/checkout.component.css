@@ -1,0 +1,21 @@
+fieldset {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+label {
+  display: block;
+  margin: 0.5rem 0;
+}
+
+.field-error {
+  display: block;
+  color: #b00020;
+  font-size: 0.85rem;
+}
+
+.total {
+  font-weight: 700;
+  font-size: 1.2rem;
+}

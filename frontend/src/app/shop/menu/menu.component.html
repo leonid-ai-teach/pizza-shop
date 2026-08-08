@@ -1,0 +1,15 @@
+<h1>Speisekarte</h1>
+
+@if (loadError()) {
+  <p class="error">Die Speisekarte konnte nicht geladen werden. Bitte versuchen Sie es später erneut.</p>
+}
+
+<div class="pizza-grid">
+  @for (pizza of pizzas(); track pizza.id) {
+    <a class="pizza-card" [routerLink]="['/pizza', pizza.id]">
+      <h2>{{ pizza.name }}</h2>
+      <p>{{ pizza.description }}</p>
+      <p class="price">{{ pizza.price | number: '1.2-2' }} &euro;</p>
+    </a>
+  }
+</div>

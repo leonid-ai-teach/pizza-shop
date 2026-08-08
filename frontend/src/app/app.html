@@ -1,0 +1,13 @@
+<header class="site-header">
+  <a routerLink="/" class="brand">Pizza Shop</a>
+  <nav>
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+      >Speisekarte</a
+    >
+    <a routerLink="/cart" routerLinkActive="active">Warenkorb ({{ cartItemCount() }})</a>
+  </nav>
+</header>
+
+<main>
+  <router-outlet />
+</main>

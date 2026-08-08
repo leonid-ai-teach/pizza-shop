@@ -1,0 +1,64 @@
+<h1>Warenkorb</h1>
+
+@if (cartService.items().length === 0) {
+  <p>Ihr Warenkorb ist leer.</p>
+  <a routerLink="/">Zurück zur Speisekarte</a>
+} @else {
+  <ul class="cart-items">
+    @for (item of cartService.items(); track item.id) {
+      <li class="cart-item">
+        <div class="cart-item-info">
+          <strong>{{ item.pizza.name }}</strong>
+          @if (item.toppings.length > 0) {
+            <div class="toppings">{{ item.toppings.map((t) => t.name).join(', ') }}</div>
+          }
+          <div class="unit-price">{{ unitPrice(item) | number: '1.2-2' }} &euro; / St&uuml;ck</div>
+        </div>
+
+        <div class="quantity-controls">
+          <button
+            type="button"
+            [attr.data-testid]="'decrease-quantity-' + item.id"
+            [attr.aria-label]="'Menge verringern: ' + item.pizza.name"
+            (click)="decreaseQuantity(item.id, item.quantity)"
+          >
+            -
+          </button>
+          <span>{{ item.quantity }}</span>
+          <button
+            type="button"
+            [attr.data-testid]="'increase-quantity-' + item.id"
+            [attr.aria-label]="'Menge erhöhen: ' + item.pizza.name"
+            (click)="increaseQuantity(item.id, item.quantity)"
+          >
+            +
+          </button>
+        </div>
+
+        <div class="line-total">{{ lineTotal(item) | number: '1.2-2' }} &euro;</div>
+
+        <a
+          [routerLink]="['/pizza', item.pizza.id]"
+          [state]="{
+            editItemId: item.id,
+            toppingIds: item.toppings.map((t) => t.id),
+            quantity: item.quantity,
+          }"
+          >Bearbeiten</a
+        >
+        <button
+          type="button"
+          [attr.data-testid]="'remove-item-' + item.id"
+          [attr.aria-label]="'Entfernen: ' + item.pizza.name"
+          (click)="removeItem(item.id)"
+        >
+          Entfernen
+        </button>
+      </li>
+    }
+  </ul>
+
+  <p class="total">Gesamtsumme: {{ cartService.total() | number: '1.2-2' }} &euro;</p>
+
+  <button type="button" data-testid="checkout-button" (click)="goToCheckout()">Zur Kasse</button>
+}

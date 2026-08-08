@@ -1,0 +1,29 @@
+fieldset {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.topping {
+  display: block;
+  margin: 0.25rem 0;
+}
+
+.quantity {
+  display: block;
+  margin: 1rem 0;
+}
+
+.quantity input {
+  width: 4rem;
+  margin-left: 0.5rem;
+}
+
+.total-price {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.error {
+  color: #b00020;
+}

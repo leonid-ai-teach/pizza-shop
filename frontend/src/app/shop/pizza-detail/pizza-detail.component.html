@@ -1,0 +1,43 @@
+@if (loadError()) {
+  <p class="error">Diese Pizza wurde nicht gefunden.</p>
+}
+
+@if (pizza(); as p) {
+  <h1>{{ p.name }}</h1>
+  <p>{{ p.description }}</p>
+  <p class="base-price">Grundpreis: {{ p.price | number: '1.2-2' }} &euro;</p>
+
+  @if (p.toppings.length > 0) {
+    <fieldset>
+      <legend>Toppings</legend>
+      @for (topping of p.toppings; track topping.id) {
+        <label class="topping">
+          <input
+            type="checkbox"
+            [checked]="isSelected(topping.id)"
+            (change)="toggleTopping(topping.id)"
+          />
+          {{ topping.name }} (+{{ topping.price | number: '1.2-2' }} &euro;)
+        </label>
+      }
+    </fieldset>
+  }
+
+  <label class="quantity">
+    Menge
+    <input
+      #quantityInput
+      type="number"
+      min="1"
+      [value]="quantity()"
+      (input)="setQuantity(quantityInput.valueAsNumber)"
+      (blur)="syncQuantityInput(quantityInput)"
+    />
+  </label>
+
+  <p class="total-price">Gesamt: {{ totalPrice() | number: '1.2-2' }} &euro;</p>
+
+  <button type="button" (click)="addToCart()">
+    {{ isEditing() ? 'Änderungen speichern' : 'In den Warenkorb' }}
+  </button>
+}

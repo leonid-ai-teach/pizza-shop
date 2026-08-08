@@ -1,0 +1,27 @@
+@if (loadError()) {
+  <p class="error">Diese Bestellung wurde nicht gefunden.</p>
+}
+
+@if (order(); as o) {
+  <h1>Vielen Dank für Ihre Bestellung!</h1>
+  <p class="order-number">Bestellnummer #{{ o.orderNumber }}</p>
+  <p>Status: {{ statusLabel(o.status) }}</p>
+  <p>Bestellart: {{ orderTypeLabel(o.orderType) }}</p>
+
+  <ul class="order-items">
+    @for (item of o.items; track item.pizzaId) {
+      <li>
+        {{ item.quantity }}x {{ item.pizzaName }}
+        @if (item.toppings.length > 0) {
+          <span class="toppings">({{ item.toppings.map((t) => t.name).join(', ') }})</span>
+        }
+        <span class="item-total">{{ item.itemTotalPrice | number: '1.2-2' }} &euro;</span>
+      </li>
+    }
+  </ul>
+
+  <p class="total">Gesamtsumme: {{ o.totalPrice | number: '1.2-2' }} &euro;</p>
+
+  <p>Wir haben Ihre Bestellung erhalten und kümmern uns gleich darum.</p>
+  <a routerLink="/">Zurück zur Speisekarte</a>
+}

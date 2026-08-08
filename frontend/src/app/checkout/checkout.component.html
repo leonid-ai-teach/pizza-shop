@@ -1,0 +1,107 @@
+<h1>Kasse</h1>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <fieldset>
+    <legend>Bestellart</legend>
+    <label>
+      <input
+        type="radio"
+        formControlName="orderType"
+        value="PICKUP"
+        data-testid="order-type-pickup"
+      />
+      Abholung
+    </label>
+    <label>
+      <input
+        type="radio"
+        formControlName="orderType"
+        value="DELIVERY"
+        data-testid="order-type-delivery"
+      />
+      Lieferung
+    </label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Kontaktdaten</legend>
+
+    <label>
+      Vorname
+      <input type="text" formControlName="firstName" data-testid="firstName" />
+    </label>
+    @if (form.controls.firstName.invalid && form.controls.firstName.touched) {
+      <span class="field-error">Dieses Feld ist erforderlich.</span>
+    }
+
+    <label>
+      Nachname
+      <input type="text" formControlName="lastName" data-testid="lastName" />
+    </label>
+    @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
+      <span class="field-error">Dieses Feld ist erforderlich.</span>
+    }
+
+    <label>
+      Telefon
+      <input type="tel" formControlName="phone" data-testid="phone" />
+    </label>
+    @if (form.controls.phone.invalid && form.controls.phone.touched) {
+      <span class="field-error">Dieses Feld ist erforderlich.</span>
+    }
+
+    <label>
+      E-Mail
+      <input type="email" formControlName="email" data-testid="email" />
+    </label>
+    @if (form.controls.email.invalid && form.controls.email.touched) {
+      <span class="field-error">Bitte geben Sie eine gültige E-Mail-Adresse ein.</span>
+    }
+  </fieldset>
+
+  @if (isDelivery) {
+    <fieldset>
+      <legend>Lieferadresse</legend>
+
+      <label>
+        Straße
+        <input type="text" formControlName="street" data-testid="street" />
+      </label>
+      @if (form.controls.street.invalid && form.controls.street.touched) {
+        <span class="field-error">Dieses Feld ist erforderlich.</span>
+      }
+
+      <label>
+        Hausnummer
+        <input type="text" formControlName="houseNumber" data-testid="houseNumber" />
+      </label>
+      @if (form.controls.houseNumber.invalid && form.controls.houseNumber.touched) {
+        <span class="field-error">Dieses Feld ist erforderlich.</span>
+      }
+
+      <label>
+        PLZ
+        <input type="text" formControlName="postalCode" data-testid="postalCode" />
+      </label>
+      @if (form.controls.postalCode.invalid && form.controls.postalCode.touched) {
+        <span class="field-error">Dieses Feld ist erforderlich.</span>
+      }
+
+      <label>
+        Ort
+        <input type="text" formControlName="city" data-testid="city" />
+      </label>
+      @if (form.controls.city.invalid && form.controls.city.touched) {
+        <span class="field-error">Dieses Feld ist erforderlich.</span>
+      }
+    </fieldset>
+  }
+
+  <p class="total">Gesamtsumme: {{ cartTotal() | number: '1.2-2' }} &euro;</p>
+
+  @if (submitError()) {
+    <p class="error">{{ submitError() }}</p>
+  }
+
+  <button type="submit" [disabled]="submitting()">Bestellung abschicken</button>
+</form>
