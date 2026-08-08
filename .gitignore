@@ -1,0 +1,19 @@
+.claude/settings.local.json
+
+# Java / Maven
+target/
+*.class
+.mvn/wrapper/maven-wrapper.jar
+
+# Angular / Node
+node_modules/
+dist/
+.angular/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Env
+.env
