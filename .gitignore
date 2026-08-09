@@ -15,6 +15,11 @@ dist/
 .idea/
 *.iml
 .vscode/
+# Eclipse (m2e legt das Output-Verzeichnis nach target/, das oben schon ignoriert wird)
+.classpath
+.project
+.settings/
+.factorypath
 
 # Env
 .env
