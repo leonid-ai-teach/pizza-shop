@@ -82,4 +82,31 @@
         </plugins>
     </build>
 
+    <profiles>
+        <!--
+            Lokales Entwickeln ohne Postgres und ohne Docker: startet die Anwendung gegen eine
+            In-Memory-H2 im PostgreSQL-Kompatibilitaetsmodus.
+
+                ./mvnw spring-boot:run -Plocaldev
+
+            H2 haengt bewusst nur an diesem Profil, damit der Treiber nicht in regulaeren
+            Builds bzw. im Produktions-Artefakt landet. Das Profil setzt zugleich das
+            Spring-Profil "localdev" (siehe application-localdev.yml), sodass kein
+            zusaetzliches SPRING_PROFILES_ACTIVE noetig ist.
+        -->
+        <profile>
+            <id>localdev</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.h2database</groupId>
+                    <artifactId>h2</artifactId>
+                    <scope>runtime</scope>
+                </dependency>
+            </dependencies>
+            <properties>
+                <spring-boot.run.profiles>localdev</spring-boot.run.profiles>
+            </properties>
+        </profile>
+    </profiles>
+
 </project>
