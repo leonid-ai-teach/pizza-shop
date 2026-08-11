@@ -1,6 +1,6 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PizzaApiService } from '../../core/services/pizza-api.service';
 import { Pizza, Topping } from '../../core/models/pizza.model';
 import { CartService } from '../../cart/cart.service';
@@ -8,7 +8,7 @@ import { calculateUnitPrice } from '../../cart/cart-item.model';
 
 @Component({
   selector: 'app-pizza-detail',
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, RouterLink],
   templateUrl: './pizza-detail.component.html',
   styleUrl: './pizza-detail.component.css',
 })
@@ -58,6 +58,11 @@ export class PizzaDetailComponent {
       this.selectedToppingIds.set(editState.toppingIds ?? []);
       this.quantity.set(editState.quantity ?? 1);
     }
+  }
+
+  /** Gerichtnummer wie auf der Karte - siehe MenuComponent.dishNumber. */
+  protected dishNumber(pizza: Pizza): string {
+    return String(pizza.id).padStart(2, '0');
   }
 
   protected isSelected(toppingId: number): boolean {

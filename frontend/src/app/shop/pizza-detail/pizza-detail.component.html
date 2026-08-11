@@ -1,43 +1,93 @@
 @if (loadError()) {
-  <p class="error">Diese Pizza wurde nicht gefunden.</p>
+  <p class="meldung-fehler" role="alert">Diese Pizza steht nicht mehr auf der Karte.</p>
+  <a routerLink="/" class="knopf-leise">Zurück zur Speisekarte</a>
 }
 
 @if (pizza(); as p) {
-  <h1>{{ p.name }}</h1>
-  <p>{{ p.description }}</p>
-  <p class="base-price">Grundpreis: {{ p.price | number: '1.2-2' }} &euro;</p>
+  <a routerLink="/" class="zurueck">← Speisekarte</a>
 
-  @if (p.toppings.length > 0) {
-    <fieldset>
-      <legend>Toppings</legend>
-      @for (topping of p.toppings; track topping.id) {
-        <label class="topping">
-          <input
-            type="checkbox"
-            [checked]="isSelected(topping.id)"
-            (change)="toggleTopping(topping.id)"
-          />
-          {{ topping.name }} (+{{ topping.price | number: '1.2-2' }} &euro;)
-        </label>
-      }
-    </fieldset>
+  <header class="kopfzeile">
+    <p class="marke">Nr. {{ dishNumber(p) }}</p>
+    <h1>{{ p.name }}</h1>
+    @if (p.description) {
+      <p class="zutaten">{{ p.description }}</p>
+    }
+    <p class="zeile grundpreis">
+      <span class="marke">Grundpreis</span>
+      <span class="fuehrung" aria-hidden="true"></span>
+      <span class="betrag">{{ p.price | number: '1.2-2' }}</span>
+    </p>
+  </header>
+
+  @if (p.imagePath) {
+    <img class="bild" [src]="p.imagePath" [alt]="p.name" loading="lazy" />
   }
 
-  <label class="quantity">
-    Menge
-    <input
-      #quantityInput
-      type="number"
-      min="1"
-      [value]="quantity()"
-      (input)="setQuantity(quantityInput.valueAsNumber)"
-      (blur)="syncQuantityInput(quantityInput)"
-    />
-  </label>
+  <div class="konfigurator">
+    @if (p.toppings.length > 0) {
+      <fieldset>
+        <legend>Extra belegen</legend>
+        <ul class="belag">
+          @for (topping of p.toppings; track topping.id) {
+            <li>
+              <label class="belag-zeile">
+                <input
+                  type="checkbox"
+                  [checked]="isSelected(topping.id)"
+                  (change)="toggleTopping(topping.id)"
+                />
+                <span class="belag-name">{{ topping.name }}</span>
+                <span class="fuehrung" aria-hidden="true"></span>
+                <span class="betrag aufpreis">+{{ topping.price | number: '1.2-2' }}</span>
+              </label>
+            </li>
+          }
+        </ul>
+      </fieldset>
+    }
 
-  <p class="total-price">Gesamt: {{ totalPrice() | number: '1.2-2' }} &euro;</p>
+    <div class="abschluss">
+      <label class="menge">
+        <span class="marke">Menge</span>
+        <span class="menge-feld">
+          <button
+            type="button"
+            class="knopf-leise schritt"
+            (click)="setQuantity(quantity() - 1)"
+            [disabled]="quantity() <= 1"
+            aria-label="Menge verringern"
+          >
+            −
+          </button>
+          <input
+            #quantityInput
+            type="number"
+            min="1"
+            class="zahl"
+            [value]="quantity()"
+            (input)="setQuantity(quantityInput.valueAsNumber)"
+            (blur)="syncQuantityInput(quantityInput)"
+            aria-label="Menge"
+          />
+          <button
+            type="button"
+            class="knopf-leise schritt"
+            (click)="setQuantity(quantity() + 1)"
+            aria-label="Menge erhöhen"
+          >
+            +
+          </button>
+        </span>
+      </label>
 
-  <button type="button" (click)="addToCart()">
-    {{ isEditing() ? 'Änderungen speichern' : 'In den Warenkorb' }}
-  </button>
+      <p class="summe">
+        <span>Gesamt</span>
+        <span class="betrag">{{ totalPrice() | number: '1.2-2' }}</span>
+      </p>
+
+      <button type="button" class="knopf" (click)="addToCart()">
+        {{ isEditing() ? 'Änderungen speichern' : 'In den Warenkorb' }}
+      </button>
+    </div>
+  </div>
 }

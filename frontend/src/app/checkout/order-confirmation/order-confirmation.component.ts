@@ -1,4 +1,4 @@
-import { DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { OrderApiService } from '../../core/services/order-api.service';
@@ -7,7 +7,7 @@ import { ORDER_STATUS_LABELS, ORDER_TYPE_LABELS } from '../../core/models/order-
 
 @Component({
   selector: 'app-order-confirmation',
-  imports: [DecimalPipe, RouterLink],
+  imports: [DecimalPipe, DatePipe, RouterLink],
   templateUrl: './order-confirmation.component.html',
   styleUrl: './order-confirmation.component.css',
 })

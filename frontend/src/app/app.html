@@ -1,12 +1,20 @@
 @if (showShopHeader()) {
-  <header class="site-header">
-    <a routerLink="/" class="brand">Pizza Shop</a>
-    <nav>
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-        >Speisekarte</a
-      >
-      <a routerLink="/cart" routerLinkActive="active">Warenkorb ({{ cartItemCount() }})</a>
-    </nav>
+  <header class="kopf">
+    <div class="kopf-inhalt">
+      <a routerLink="/" class="marke-name">Pizza&nbsp;Shop</a>
+
+      <nav aria-label="Hauptnavigation">
+        <a routerLink="/" routerLinkActive="aktiv" [routerLinkActiveOptions]="{ exact: true }"
+          >Speisekarte</a
+        >
+        <a routerLink="/cart" routerLinkActive="aktiv" class="warenkorb">
+          Warenkorb
+          <span class="zaehler zahl" [class.gefuellt]="cartItemCount() > 0">{{
+            cartItemCount()
+          }}</span>
+        </a>
+      </nav>
+    </div>
   </header>
 }
 

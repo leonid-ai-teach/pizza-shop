@@ -1,107 +1,130 @@
-<h1>Kasse</h1>
+<header class="kopfzeile">
+  <p class="marke">Letzter Schritt</p>
+  <h1>Kasse</h1>
+  <p class="anriss">Keine Online-Zahlung — bezahlt wird bei Lieferung oder Abholung.</p>
+</header>
 
 <form [formGroup]="form" (ngSubmit)="submit()">
-  <fieldset>
+  <fieldset class="bestellart">
     <legend>Bestellart</legend>
-    <label>
+    <label class="wahl">
       <input
         type="radio"
         formControlName="orderType"
         value="PICKUP"
         data-testid="order-type-pickup"
       />
-      Abholung
+      <span>
+        <span class="wahl-titel">Abholung</span>
+        <span class="wahl-hinweis">Du holst die Bestellung selbst ab.</span>
+      </span>
     </label>
-    <label>
+    <label class="wahl">
       <input
         type="radio"
         formControlName="orderType"
         value="DELIVERY"
         data-testid="order-type-delivery"
       />
-      Lieferung
+      <span>
+        <span class="wahl-titel">Lieferung</span>
+        <span class="wahl-hinweis">Wir bringen sie zu dir nach Hause.</span>
+      </span>
     </label>
   </fieldset>
 
   <fieldset>
     <legend>Kontaktdaten</legend>
 
-    <label>
-      Vorname
-      <input type="text" formControlName="firstName" data-testid="firstName" />
-    </label>
-    @if (form.controls.firstName.invalid && form.controls.firstName.touched) {
-      <span class="field-error">Dieses Feld ist erforderlich.</span>
-    }
+    <div class="paar">
+      <label class="feld">
+        <span>Vorname</span>
+        <input type="text" formControlName="firstName" data-testid="firstName" autocomplete="given-name" />
+        @if (form.controls.firstName.invalid && form.controls.firstName.touched) {
+          <span class="feld-fehler">Bitte ausfüllen.</span>
+        }
+      </label>
 
-    <label>
-      Nachname
-      <input type="text" formControlName="lastName" data-testid="lastName" />
-    </label>
-    @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
-      <span class="field-error">Dieses Feld ist erforderlich.</span>
-    }
+      <label class="feld">
+        <span>Nachname</span>
+        <input type="text" formControlName="lastName" data-testid="lastName" autocomplete="family-name" />
+        @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
+          <span class="feld-fehler">Bitte ausfüllen.</span>
+        }
+      </label>
+    </div>
 
-    <label>
-      Telefon
-      <input type="tel" formControlName="phone" data-testid="phone" />
-    </label>
-    @if (form.controls.phone.invalid && form.controls.phone.touched) {
-      <span class="field-error">Dieses Feld ist erforderlich.</span>
-    }
+    <div class="paar">
+      <label class="feld">
+        <span>Telefon</span>
+        <input type="tel" formControlName="phone" data-testid="phone" autocomplete="tel" />
+        @if (form.controls.phone.invalid && form.controls.phone.touched) {
+          <span class="feld-fehler">Bitte ausfüllen — für Rückfragen zur Bestellung.</span>
+        }
+      </label>
 
-    <label>
-      E-Mail
-      <input type="email" formControlName="email" data-testid="email" />
-    </label>
-    @if (form.controls.email.invalid && form.controls.email.touched) {
-      <span class="field-error">Bitte geben Sie eine gültige E-Mail-Adresse ein.</span>
-    }
+      <label class="feld">
+        <span>E-Mail</span>
+        <input type="email" formControlName="email" data-testid="email" autocomplete="email" />
+        @if (form.controls.email.invalid && form.controls.email.touched) {
+          <span class="feld-fehler">Bitte eine gültige E-Mail-Adresse angeben.</span>
+        }
+      </label>
+    </div>
   </fieldset>
 
   @if (isDelivery) {
     <fieldset>
       <legend>Lieferadresse</legend>
 
-      <label>
-        Straße
-        <input type="text" formControlName="street" data-testid="street" />
-      </label>
-      @if (form.controls.street.invalid && form.controls.street.touched) {
-        <span class="field-error">Dieses Feld ist erforderlich.</span>
-      }
+      <div class="paar strasse">
+        <label class="feld">
+          <span>Straße</span>
+          <input type="text" formControlName="street" data-testid="street" autocomplete="address-line1" />
+          @if (form.controls.street.invalid && form.controls.street.touched) {
+            <span class="feld-fehler">Bitte ausfüllen.</span>
+          }
+        </label>
 
-      <label>
-        Hausnummer
-        <input type="text" formControlName="houseNumber" data-testid="houseNumber" />
-      </label>
-      @if (form.controls.houseNumber.invalid && form.controls.houseNumber.touched) {
-        <span class="field-error">Dieses Feld ist erforderlich.</span>
-      }
+        <label class="feld">
+          <span>Nr.</span>
+          <input type="text" formControlName="houseNumber" data-testid="houseNumber" />
+          @if (form.controls.houseNumber.invalid && form.controls.houseNumber.touched) {
+            <span class="feld-fehler">Fehlt.</span>
+          }
+        </label>
+      </div>
 
-      <label>
-        PLZ
-        <input type="text" formControlName="postalCode" data-testid="postalCode" />
-      </label>
-      @if (form.controls.postalCode.invalid && form.controls.postalCode.touched) {
-        <span class="field-error">Dieses Feld ist erforderlich.</span>
-      }
+      <div class="paar plz">
+        <label class="feld">
+          <span>PLZ</span>
+          <input type="text" formControlName="postalCode" data-testid="postalCode" autocomplete="postal-code" />
+          @if (form.controls.postalCode.invalid && form.controls.postalCode.touched) {
+            <span class="feld-fehler">Fehlt.</span>
+          }
+        </label>
 
-      <label>
-        Ort
-        <input type="text" formControlName="city" data-testid="city" />
-      </label>
-      @if (form.controls.city.invalid && form.controls.city.touched) {
-        <span class="field-error">Dieses Feld ist erforderlich.</span>
-      }
+        <label class="feld">
+          <span>Ort</span>
+          <input type="text" formControlName="city" data-testid="city" autocomplete="address-level2" />
+          @if (form.controls.city.invalid && form.controls.city.touched) {
+            <span class="feld-fehler">Bitte ausfüllen.</span>
+          }
+        </label>
+      </div>
     </fieldset>
   }
 
-  <p class="total">Gesamtsumme: {{ cartTotal() | number: '1.2-2' }} &euro;</p>
-
   @if (submitError()) {
-    <p class="error">{{ submitError() }}</p>
+    <p class="meldung-fehler" role="alert">{{ submitError() }}</p>
   }
 
-  <button type="submit" [disabled]="submitting()">Bestellung abschicken</button>
+  <p class="summe">
+    <span>Zu zahlen</span>
+    <span class="betrag">{{ cartTotal() | number: '1.2-2' }}</span>
+  </p>
+
+  <button type="submit" class="knopf abschicken" [disabled]="submitting()">
+    {{ submitting() ? 'Wird gesendet …' : 'Bestellung abschicken' }}
+  </button>
 </form>

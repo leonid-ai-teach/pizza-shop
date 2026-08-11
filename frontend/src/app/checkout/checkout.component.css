@@ -1,21 +1,103 @@
-fieldset {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+.kopfzeile {
+  margin-bottom: var(--raum-6);
 }
 
-label {
+.kopfzeile h1 {
+  margin: var(--raum-1) 0 var(--raum-2);
+}
+
+.anriss {
+  color: var(--tinte-leise);
+  font-size: var(--grad-s);
+}
+
+form {
+  max-width: 40rem;
+}
+
+/* Bestellart ist die folgenreichste Wahl auf der Seite - sie bekommt deshalb
+   ganze Flaechen statt bloss zweier Radiopunkte. */
+.bestellart {
+  display: grid;
+  gap: var(--raum-3);
+}
+
+.wahl {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--raum-3);
+  padding: var(--raum-3);
+  border: 1px solid var(--linie);
+  cursor: pointer;
+}
+
+.wahl:hover {
+  border-color: var(--fuehrung);
+  background: var(--papier-tief);
+}
+
+.wahl:has(input:checked) {
+  border-color: var(--tinte);
+  background: var(--papier-tief);
+}
+
+.wahl input {
+  accent-color: var(--stempel);
+  width: 1.05rem;
+  height: 1.05rem;
+  margin: 0;
+  flex: none;
+  margin-top: 0.2em;
+}
+
+.wahl-titel {
   display: block;
-  margin: 0.5rem 0;
+  font-family: var(--schrift-display);
+  text-transform: uppercase;
+  font-size: var(--grad-m);
 }
 
-.field-error {
+.wahl-hinweis {
   display: block;
-  color: #b00020;
-  font-size: 0.85rem;
+  color: var(--tinte-leise);
+  font-size: var(--grad-xs);
 }
 
-.total {
-  font-weight: 700;
-  font-size: 1.2rem;
+@media (min-width: 33rem) {
+  .bestellart {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Zwei Felder pro Zeile, sobald Platz ist - ein Ausfuellzettel laeuft nicht
+   endlos einspaltig. */
+.paar {
+  display: grid;
+  gap: 0 var(--raum-4);
+}
+
+@media (min-width: 33rem) {
+  .paar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .paar.strasse {
+    grid-template-columns: 3fr 1fr;
+  }
+
+  .paar.plz {
+    grid-template-columns: 1fr 2fr;
+  }
+}
+
+.abschicken {
+  margin-top: var(--raum-6);
+  width: 100%;
+}
+
+@media (min-width: 33rem) {
+  .abschicken {
+    width: auto;
+    min-width: 18rem;
+  }
 }

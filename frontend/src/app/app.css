@@ -1,34 +1,89 @@
-.site-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #e0e0e0;
+/* Kopfzeile: die Zeile ganz oben auf dem Flyer. Sie sitzt auf einer kraeftigen
+   Trennlinie, so wie ein Bestellblock oben perforiert ist. */
+.kopf {
+  border-bottom: 2px solid var(--tinte);
+  background: var(--papier);
 }
 
-.brand {
-  font-weight: 700;
-  font-size: 1.25rem;
+.kopf-inhalt {
+  max-width: var(--breite-inhalt);
+  margin: 0 auto;
+  padding: var(--raum-4) var(--raum-6);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--raum-4);
+  flex-wrap: wrap;
+}
+
+.marke-name {
+  font-family: var(--schrift-display);
+  font-size: var(--grad-l);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
   text-decoration: none;
-  color: inherit;
 }
 
 nav {
   display: flex;
-  gap: 1.5rem;
+  align-items: baseline;
+  gap: var(--raum-6);
 }
 
 nav a {
+  font-size: var(--grad-s);
   text-decoration: none;
-  color: inherit;
+  padding-bottom: 2px;
+  border-bottom: 2px solid transparent;
 }
 
-nav a.active {
-  font-weight: 700;
+nav a:hover {
+  border-bottom-color: var(--linie);
+}
+
+nav a.aktiv {
+  border-bottom-color: var(--stempel);
+}
+
+.warenkorb {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--raum-2);
+}
+
+/* Der Zaehler ist leer ein blosser Strich und faerbt sich erst, wenn wirklich etwas
+   drin liegt - die Farbe meldet einen Zustand, sie dekoriert nicht. */
+.zaehler {
+  font-size: var(--grad-xs);
+  min-width: 1.6em;
+  padding: 0.1em 0.4em;
+  text-align: center;
+  border: 1px solid var(--linie);
+  color: var(--tinte-leise);
+}
+
+.zaehler.gefuellt {
+  background: var(--stempel);
+  border-color: var(--stempel);
+  color: var(--papier);
 }
 
 main {
-  max-width: 960px;
+  max-width: var(--breite-inhalt);
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: var(--raum-8) var(--raum-6) var(--raum-16);
+}
+
+@media (max-width: 32rem) {
+  .kopf-inhalt {
+    padding: var(--raum-3) var(--raum-4);
+  }
+
+  main {
+    padding: var(--raum-6) var(--raum-4) var(--raum-12);
+  }
+
+  nav {
+    gap: var(--raum-4);
+  }
 }

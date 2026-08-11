@@ -1,29 +1,147 @@
-fieldset {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  margin: 1rem 0;
+.zurueck {
+  display: inline-block;
+  font-size: var(--grad-s);
+  color: var(--tinte-leise);
+  text-decoration: none;
+  margin-bottom: var(--raum-6);
 }
 
-.topping {
+.zurueck:hover {
+  color: var(--tinte);
+}
+
+.kopfzeile {
+  border-top: 2px solid var(--tinte);
+  padding-top: var(--raum-4);
+}
+
+.kopfzeile h1 {
+  margin: var(--raum-1) 0 var(--raum-2);
+}
+
+.zutaten {
+  max-width: 38rem;
+  color: var(--tinte-leise);
+  font-size: var(--grad-s);
+}
+
+.grundpreis {
+  margin-top: var(--raum-4);
+  padding-bottom: var(--raum-2);
+}
+
+/* Bildplatz: bleibt vollstaendig aus dem Layout, solange keine URL gepflegt ist -
+   die Karte ist typografisch gebaut und darf ohne Foto nicht luecken. */
+.bild {
   display: block;
-  margin: 0.25rem 0;
+  width: 100%;
+  max-height: 22rem;
+  object-fit: cover;
+  margin: var(--raum-6) 0 0;
+  border: 1px solid var(--linie);
 }
 
-.quantity {
+.konfigurator {
+  margin-top: var(--raum-8);
+}
+
+.belag {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Die Belagliste ist eine Abhakliste, wie auf dem Bestellblock: ankreuzen,
+   Aufpreis steht rechts. */
+.belag-zeile {
+  display: flex;
+  align-items: baseline;
+  gap: var(--raum-3);
+  padding: var(--raum-2) 0;
+  cursor: pointer;
+  border-bottom: 1px solid var(--papier-tief);
+}
+
+.belag li:last-child .belag-zeile {
+  border-bottom: none;
+}
+
+.belag-zeile:hover {
+  color: var(--tinte);
+}
+
+.belag-zeile input {
+  accent-color: var(--stempel);
+  width: 1.05rem;
+  height: 1.05rem;
+  margin: 0;
+  flex: none;
+  align-self: center;
+}
+
+.belag-name {
+  flex: 0 1 auto;
+}
+
+.aufpreis {
+  font-size: var(--grad-s);
+  color: var(--tinte-leise);
+}
+
+.abschluss {
+  margin-top: var(--raum-8);
+}
+
+.menge {
   display: block;
-  margin: 1rem 0;
+  margin-bottom: var(--raum-4);
 }
 
-.quantity input {
-  width: 4rem;
-  margin-left: 0.5rem;
+.menge > .marke {
+  display: block;
+  margin-bottom: var(--raum-1);
 }
 
-.total-price {
-  font-weight: 700;
-  font-size: 1.1rem;
+.menge-feld {
+  display: inline-flex;
+  align-items: stretch;
 }
 
-.error {
-  color: #b00020;
+.schritt {
+  width: 2.5rem;
+  font-size: var(--grad-l);
+  line-height: 1;
+  padding: 0;
+}
+
+.menge-feld input {
+  width: 3.5rem;
+  text-align: center;
+  padding: var(--raum-2) var(--raum-1);
+  border: 1px solid var(--linie);
+  border-left: none;
+  border-right: none;
+  background: var(--papier);
+  border-radius: 0;
+  /* Die nativen Pfeilchen wuerden neben den eigenen Schritt-Knoepfen doppeln. */
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.menge-feld input::-webkit-outer-spin-button,
+.menge-feld input::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.abschluss .knopf {
+  margin-top: var(--raum-6);
+  width: 100%;
+}
+
+@media (min-width: 33rem) {
+  .abschluss .knopf {
+    width: auto;
+    min-width: 16rem;
+  }
 }

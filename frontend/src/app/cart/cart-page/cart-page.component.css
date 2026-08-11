@@ -1,30 +1,130 @@
-.cart-items {
+.kopfzeile {
+  margin-bottom: var(--raum-6);
+}
+
+.kopfzeile h1 {
+  margin-top: var(--raum-1);
+}
+
+.leer {
+  border-top: 2px solid var(--tinte);
+  padding-top: var(--raum-6);
+  color: var(--tinte-leise);
+}
+
+.leer .knopf {
+  margin-top: var(--raum-4);
+}
+
+.positionen {
   list-style: none;
+  margin: 0;
   padding: 0;
+  border-top: 2px solid var(--tinte);
 }
 
-.cart-item {
+/* Position wie eine Zeile auf dem Bestellblock: Anzahl links, alles Weitere
+   dahinter eingerueckt. */
+.position {
   display: grid;
-  grid-template-columns: 1fr auto auto auto auto;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #e0e0e0;
+  grid-template-columns: 3rem 1fr;
+  gap: var(--raum-3);
+  padding: var(--raum-4) 0;
+  border-bottom: 1px solid var(--linie);
 }
 
-.toppings {
-  color: #666;
-  font-size: 0.9rem;
+.anzahl {
+  font-size: var(--grad-m);
+  color: var(--stempel);
+  padding-top: 0.1em;
 }
 
-.quantity-controls {
+.name {
+  font-family: var(--schrift-display);
+  font-size: var(--grad-l);
+  text-transform: uppercase;
+  flex: 0 1 auto;
+}
+
+.belag {
+  margin-top: var(--raum-1);
+  color: var(--tinte-leise);
+  font-size: var(--grad-s);
+}
+
+.einzelpreis {
+  margin-top: var(--raum-1);
+  color: var(--tinte-leise);
+  font-size: var(--grad-xs);
+}
+
+.aktionen {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  gap: var(--raum-4);
+  margin-top: var(--raum-3);
 }
 
-.total {
-  font-weight: 700;
-  font-size: 1.2rem;
-  margin-top: 1rem;
+.mengensteller {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--linie);
+}
+
+.schritt {
+  width: 2.25rem;
+  border: none;
+  font-size: var(--grad-m);
+  line-height: 1;
+  padding: var(--raum-1) 0;
+}
+
+.menge-wert {
+  min-width: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--grad-s);
+  border-left: 1px solid var(--linie);
+  border-right: 1px solid var(--linie);
+}
+
+/* Nebenhandlungen bleiben Text, damit nur "Zur Kasse" als Knopf gelesen wird. */
+.textlink {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: var(--grad-s);
+  color: var(--tinte-leise);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.textlink:hover {
+  color: var(--stempel);
+}
+
+.weiter {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--raum-6);
+  margin-top: var(--raum-8);
+}
+
+@media (max-width: 32rem) {
+  .position {
+    grid-template-columns: 2.25rem 1fr;
+    gap: var(--raum-2);
+  }
+
+  .name {
+    font-size: var(--grad-m);
+  }
+
+  .weiter .knopf {
+    width: 100%;
+  }
 }

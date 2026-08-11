@@ -1,25 +1,166 @@
-.order-number {
-  font-size: 1.3rem;
-  font-weight: 700;
+/* Der Beleg: schmale Spalte, gezackte Kanten oben und unten wie ein abgerissener
+   Bon. Hier zahlt sich die gewaehlte Bildwelt aus - die Bestaetigung IST ein Beleg,
+   sie sieht nicht bloss so aus. */
+.bon {
+  max-width: 26rem;
+  margin: 0 auto;
+  padding: var(--raum-8) var(--raum-6);
+  background: #fffdf8;
+  border-left: 1px solid var(--linie);
+  border-right: 1px solid var(--linie);
+  /* Abrisskante: Zickzack oben und unten. */
+  --zacke: 10px;
+  clip-path: polygon(
+    0 var(--zacke),
+    5% 0,
+    10% var(--zacke),
+    15% 0,
+    20% var(--zacke),
+    25% 0,
+    30% var(--zacke),
+    35% 0,
+    40% var(--zacke),
+    45% 0,
+    50% var(--zacke),
+    55% 0,
+    60% var(--zacke),
+    65% 0,
+    70% var(--zacke),
+    75% 0,
+    80% var(--zacke),
+    85% 0,
+    90% var(--zacke),
+    95% 0,
+    100% var(--zacke),
+    100% calc(100% - var(--zacke)),
+    95% 100%,
+    90% calc(100% - var(--zacke)),
+    85% 100%,
+    80% calc(100% - var(--zacke)),
+    75% 100%,
+    70% calc(100% - var(--zacke)),
+    65% 100%,
+    60% calc(100% - var(--zacke)),
+    55% 100%,
+    50% calc(100% - var(--zacke)),
+    45% 100%,
+    40% calc(100% - var(--zacke)),
+    35% 100%,
+    30% calc(100% - var(--zacke)),
+    25% 100%,
+    20% calc(100% - var(--zacke)),
+    15% 100%,
+    10% calc(100% - var(--zacke)),
+    5% 100%,
+    0 calc(100% - var(--zacke))
+  );
 }
 
-.order-items {
+.bon-kopf {
+  text-align: center;
+  padding-bottom: var(--raum-4);
+  border-bottom: 1px dashed var(--fuehrung);
+}
+
+.danke {
+  font-family: var(--schrift-display);
+  text-transform: uppercase;
+  font-size: var(--grad-xl);
+  margin-top: var(--raum-3);
+}
+
+.nummer {
+  font-size: var(--grad-2xl);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+/* Der Status als aufgedrueckter Stempel - leicht schief, damit er wie von Hand
+   gesetzt wirkt und nicht wie ein Etikett. */
+.stempel {
+  display: inline-block;
+  margin-top: var(--raum-3);
+  padding: var(--raum-1) var(--raum-3);
+  border: 2px solid var(--stempel);
+  color: var(--stempel);
+  font-family: var(--schrift-zahl);
+  font-size: var(--grad-xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transform: rotate(-2.5deg);
+}
+
+.eckdaten {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--raum-3);
+  margin: var(--raum-4) 0;
+  padding-bottom: var(--raum-4);
+  border-bottom: 1px dashed var(--fuehrung);
+}
+
+.eckdaten dt {
+  font-family: var(--schrift-zahl);
+  font-size: var(--grad-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tinte-leise);
+}
+
+.eckdaten dd {
+  margin: var(--raum-1) 0 0;
+  font-size: var(--grad-s);
+}
+
+.positionen {
   list-style: none;
+  margin: 0;
   padding: 0;
 }
 
-.order-items li {
-  display: flex;
-  gap: 0.5rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #e0e0e0;
+.positionen li {
+  padding: var(--raum-2) 0;
 }
 
-.item-total {
-  margin-left: auto;
+.anzahl {
+  color: var(--stempel);
+  flex: none;
 }
 
-.total {
-  font-weight: 700;
-  font-size: 1.1rem;
+.name {
+  font-size: var(--grad-s);
+  flex: 0 1 auto;
+}
+
+.belag {
+  margin-top: var(--raum-1);
+  padding-left: 2.1rem;
+  color: var(--tinte-leise);
+  font-size: var(--grad-xs);
+}
+
+.zahlhinweis {
+  margin-top: var(--raum-2);
+  color: var(--tinte-leise);
+  font-size: var(--grad-xs);
+  text-align: right;
+}
+
+.bon-fuss {
+  margin-top: var(--raum-6);
+  padding-top: var(--raum-4);
+  border-top: 1px dashed var(--fuehrung);
+  text-align: center;
+  font-size: var(--grad-s);
+}
+
+.klein {
+  margin-top: var(--raum-2);
+  color: var(--tinte-leise);
+  font-size: var(--grad-xs);
+}
+
+.weiter {
+  margin-top: var(--raum-8);
+  text-align: center;
 }

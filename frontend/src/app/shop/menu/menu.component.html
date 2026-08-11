@@ -1,15 +1,46 @@
-<h1>Speisekarte</h1>
+<header class="karte-kopf">
+  <p class="marke">Steinofen &middot; Lieferung &amp; Abholung</p>
+  <h1>Speisekarte</h1>
+  <p class="anriss">
+    Jede Pizza lässt sich mit zusätzlichen Zutaten belegen. Bestellt wird ohne Konto —
+    Nummer merken genügt.
+  </p>
+</header>
 
 @if (loadError()) {
-  <p class="error">Die Speisekarte konnte nicht geladen werden. Bitte versuchen Sie es später erneut.</p>
+  <p class="fehler" role="alert">
+    Die Speisekarte lässt sich gerade nicht laden. Bitte lade die Seite neu.
+  </p>
 }
 
-<div class="pizza-grid">
+@if (!loadError() && pizzas().length === 0) {
+  <p class="leer">Speisekarte wird geladen …</p>
+}
+
+<ul class="karte">
   @for (pizza of pizzas(); track pizza.id) {
-    <a class="pizza-card" [routerLink]="['/pizza', pizza.id]">
-      <h2>{{ pizza.name }}</h2>
-      <p>{{ pizza.description }}</p>
-      <p class="price">{{ pizza.price | number: '1.2-2' }} &euro;</p>
-    </a>
+    <li>
+      <a class="posten" [routerLink]="['/pizza', pizza.id]">
+        <span class="nummer zahl" aria-hidden="true">{{ dishNumber(pizza) }}</span>
+
+        <span class="posten-text">
+          <span class="titelzeile zeile">
+            <span class="name">{{ pizza.name }}</span>
+            <span class="fuehrung" aria-hidden="true"></span>
+            <span class="preis betrag">{{ pizza.price | number: '1.2-2' }}</span>
+          </span>
+          @if (pizza.description) {
+            <span class="zutaten">{{ pizza.description }}</span>
+          }
+        </span>
+      </a>
+    </li>
   }
-</div>
+</ul>
+
+@if (pizzas().length > 0) {
+  <p class="fussnote">
+    Alle Preise in Euro inkl. MwSt. Zusätzliche Zutaten werden beim Konfigurieren
+    aufgeschlagen.
+  </p>
+}

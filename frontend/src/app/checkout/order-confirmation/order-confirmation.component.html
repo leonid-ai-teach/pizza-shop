@@ -1,27 +1,58 @@
 @if (loadError()) {
-  <p class="error">Diese Bestellung wurde nicht gefunden.</p>
+  <p class="meldung-fehler" role="alert">Diese Bestellung wurde nicht gefunden.</p>
+  <a routerLink="/" class="knopf-leise">Zur Speisekarte</a>
 }
 
 @if (order(); as o) {
-  <h1>Vielen Dank für Ihre Bestellung!</h1>
-  <p class="order-number">Bestellnummer #{{ o.orderNumber }}</p>
-  <p>Status: {{ statusLabel(o.status) }}</p>
-  <p>Bestellart: {{ orderTypeLabel(o.orderType) }}</p>
+  <article class="bon">
+    <header class="bon-kopf">
+      <p class="marke">Pizza Shop &middot; Bestellbeleg</p>
+      <p class="danke">Danke!</p>
+      <p class="nummer zahl">#{{ o.orderNumber }}</p>
+      <p class="stempel">{{ statusLabel(o.status) }}</p>
+    </header>
 
-  <ul class="order-items">
-    @for (item of o.items; track $index) {
-      <li>
-        {{ item.quantity }}x {{ item.pizzaName }}
-        @if (item.toppings.length > 0) {
-          <span class="toppings">({{ item.toppings.map((t) => t.name).join(', ') }})</span>
-        }
-        <span class="item-total">{{ item.itemTotalPrice | number: '1.2-2' }} &euro;</span>
-      </li>
-    }
-  </ul>
+    <dl class="eckdaten">
+      <div>
+        <dt>Bestellart</dt>
+        <dd>{{ orderTypeLabel(o.orderType) }}</dd>
+      </div>
+      <div>
+        <dt>Eingegangen</dt>
+        <dd class="zahl">{{ o.createdAt | date: 'dd.MM.yyyy, HH:mm' }}</dd>
+      </div>
+    </dl>
 
-  <p class="total">Gesamtsumme: {{ o.totalPrice | number: '1.2-2' }} &euro;</p>
+    <ul class="positionen">
+      @for (item of o.items; track $index) {
+        <li>
+          <p class="zeile">
+            <span class="anzahl zahl">{{ item.quantity }}&times;</span>
+            <span class="name">{{ item.pizzaName }}</span>
+            <span class="fuehrung" aria-hidden="true"></span>
+            <span class="betrag">{{ item.itemTotalPrice | number: '1.2-2' }}</span>
+          </p>
+          @if (item.toppings.length > 0) {
+            <p class="belag">mit {{ item.toppings.map((t) => t.name).join(', ') }}</p>
+          }
+        </li>
+      }
+    </ul>
 
-  <p>Wir haben Ihre Bestellung erhalten und kümmern uns gleich darum.</p>
-  <a routerLink="/">Zurück zur Speisekarte</a>
+    <p class="summe">
+      <span>Summe</span>
+      <span class="betrag">{{ o.totalPrice | number: '1.2-2' }}</span>
+    </p>
+
+    <p class="zahlhinweis">Bezahlt wird bei {{ orderTypeLabel(o.orderType) }}.</p>
+
+    <footer class="bon-fuss">
+      <p>Wir haben deine Bestellung erhalten und legen gleich los.</p>
+      <p class="klein">Notier dir die Nummer — damit finden wir die Bestellung sofort wieder.</p>
+    </footer>
+  </article>
+
+  <div class="weiter">
+    <a routerLink="/" class="knopf">Neue Bestellung</a>
+  </div>
 }

@@ -22,4 +22,13 @@ export class MenuComponent {
       error: () => this.loadError.set(true),
     });
   }
+
+  /**
+   * Gerichtnummer, wie man sie in der Pizzeria bestellt ("einmal die 42"). Bewusst aus
+   * der ID abgeleitet und nicht aus der Listenposition: eine Nummer taugt nur etwas,
+   * wenn sie stabil bleibt, wenn ein Gericht aus der Karte genommen wird.
+   */
+  protected dishNumber(pizza: Pizza): string {
+    return String(pizza.id).padStart(2, '0');
+  }
 }

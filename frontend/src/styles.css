@@ -1,1 +1,310 @@
-/* You can add global styles to this file, and also import other style files */
+/*
+ * Design-System "Bestellzettel"
+ *
+ * Bildwelt: der Speisekarten-Flyer aus dem Briefkasten und der Bestellblock in der
+ * Kueche. Punktlinie fuehrt vom Gericht zum Preis, Zahlen stehen im Monospace wie auf
+ * dem Kassenbon, Gerichte tragen eine feste Nummer. Alles traegt sich ueber Typografie
+ * und Farbe - der Katalog hat keine Fotos.
+ *
+ * Schriften sind selbst gehostet (@fontsource), nicht ueber das Google-Fonts-CDN:
+ * dessen Einbindung gibt die IP der Besucher an Google weiter und ist in Deutschland
+ * abgemahnt worden.
+ */
+
+@import '@fontsource/anton/400.css';
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/jetbrains-mono';
+
+:root {
+  /* --- Farben --- */
+  --papier: #f6f4ed;          /* Flyer-Papier, bewusst leicht graustichig */
+  --papier-tief: #ebe7dc;     /* Hover, Zebra, Fuellflaechen */
+  --tinte: #14120e;           /* Text */
+  --tinte-leise: #5d574c;     /* Sekundaertext */
+  --stempel: #c4331e;         /* Akzent - sparsam, wie ein Stempelabdruck */
+  --oliv: #6b7256;            /* zweiter Akzent, ruhig */
+  --linie: #cdc7b8;           /* Hairlines, Rahmen */
+  --fuehrung: #a9a08b;        /* Punktlinie Name -> Preis, bewusst kraeftiger als --linie */
+
+  /* --- Schrift --- */
+  --schrift-display: 'Anton', system-ui, sans-serif;
+  --schrift-text: 'Inter Variable', system-ui, sans-serif;
+  --schrift-zahl: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+  /* Typo-Skala, Verhaeltnis ~1.25 */
+  --grad-xs: 0.75rem;
+  --grad-s: 0.875rem;
+  --grad-m: 1rem;
+  --grad-l: 1.25rem;
+  --grad-xl: 1.75rem;
+  --grad-2xl: clamp(2.25rem, 6vw, 3.5rem);
+
+  /* --- Abstaende, 4px-Raster --- */
+  --raum-1: 0.25rem;
+  --raum-2: 0.5rem;
+  --raum-3: 0.75rem;
+  --raum-4: 1rem;
+  --raum-6: 1.5rem;
+  --raum-8: 2rem;
+  --raum-12: 3rem;
+  --raum-16: 4rem;
+
+  --breite-inhalt: 54rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--papier);
+  color: var(--tinte);
+  font-family: var(--schrift-text);
+  font-size: var(--grad-m);
+  line-height: 1.55;
+  /* Papier soll ruhig wirken, nicht knallen */
+  font-optical-sizing: auto;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--schrift-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+  margin: 0;
+}
+
+h1 {
+  font-size: var(--grad-2xl);
+}
+
+h2 {
+  font-size: var(--grad-xl);
+}
+
+h3 {
+  font-size: var(--grad-l);
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* Tastaturbedienung muss sichtbar bleiben - der Stempel ist hier Funktion, nicht Deko. */
+:focus-visible {
+  outline: 2px solid var(--stempel);
+  outline-offset: 2px;
+}
+
+/* Zahlen stehen ueberall im Monospace und tabellarisch, damit Preise untereinander
+   auf dem Komma stehen wie auf einem Bon. */
+.zahl {
+  font-family: var(--schrift-zahl);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Kleines Label ueber einem Abschnitt: gesperrt, leise, nie fett. */
+.marke {
+  font-family: var(--schrift-zahl);
+  font-size: var(--grad-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--tinte-leise);
+}
+
+/* ------------------------------------------------------------------
+   Gemeinsame Bausteine
+   Liegen global, weil Konfiguration, Warenkorb, Kasse und Bestaetigung
+   dieselben Muster brauchen. Komponenten-CSS ergaenzt nur noch das,
+   was wirklich seitenspezifisch ist.
+   ------------------------------------------------------------------ */
+
+/* Punktlinie fuehrt vom Namen zum Preis - das Signaturelement der Karte.
+   Als Hintergrundbild statt border-bottom, weil sich so Punktgroesse und
+   Abstand unabhaengig steuern lassen. */
+.fuehrung {
+  flex: 1 1 auto;
+  min-width: var(--raum-4);
+  height: 0.45em;
+  background-image: radial-gradient(circle, var(--fuehrung) 1px, transparent 1.2px);
+  background-size: 6px 2px;
+  background-position: left bottom;
+  background-repeat: repeat-x;
+}
+
+/* Zeile aus Bezeichnung, Punktlinie und Betrag. */
+.zeile {
+  display: flex;
+  align-items: baseline;
+  gap: var(--raum-2);
+}
+
+.betrag {
+  font-family: var(--schrift-zahl);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.betrag::after {
+  content: ' €';
+  font-family: var(--schrift-text);
+  color: var(--tinte-leise);
+}
+
+/* Summenzeile: Doppellinie darueber, wie der Abschluss auf einem Bon. */
+.summe {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--raum-4);
+  margin-top: var(--raum-4);
+  padding-top: var(--raum-3);
+  border-top: 3px double var(--tinte);
+  font-family: var(--schrift-display);
+  text-transform: uppercase;
+  font-size: var(--grad-l);
+}
+
+.summe .betrag {
+  font-size: var(--grad-l);
+}
+
+/* Knoepfe: der Stempel ist der Handlungsknopf, alles andere bleibt ruhig. */
+.knopf {
+  display: inline-block;
+  font-family: var(--schrift-display);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: var(--grad-m);
+  padding: var(--raum-3) var(--raum-6);
+  border: 2px solid var(--stempel);
+  background: var(--stempel);
+  color: var(--papier);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.knopf:hover:not(:disabled) {
+  background: var(--tinte);
+  border-color: var(--tinte);
+}
+
+.knopf:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.knopf-leise {
+  display: inline-block;
+  font-family: var(--schrift-text);
+  font-size: var(--grad-s);
+  padding: var(--raum-2) var(--raum-3);
+  border: 1px solid var(--linie);
+  background: transparent;
+  color: var(--tinte);
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.knopf-leise:hover:not(:disabled) {
+  border-color: var(--tinte);
+  background: var(--papier-tief);
+}
+
+/* Formular als Ausfuellzettel: Label klein und gesperrt darueber, Feld als
+   beschreibbare Zeile. */
+.feld {
+  display: block;
+  margin-bottom: var(--raum-4);
+}
+
+.feld > span {
+  display: block;
+  font-family: var(--schrift-zahl);
+  font-size: var(--grad-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tinte-leise);
+  margin-bottom: var(--raum-1);
+}
+
+.feld input {
+  width: 100%;
+  padding: var(--raum-2) var(--raum-2);
+  border: 1px solid var(--linie);
+  background: var(--papier);
+  border-radius: 0;
+}
+
+.feld input:hover {
+  border-color: var(--fuehrung);
+}
+
+.feld input:focus {
+  border-color: var(--tinte);
+}
+
+.feld-fehler {
+  display: block;
+  margin-top: var(--raum-1);
+  color: var(--stempel);
+  font-size: var(--grad-xs);
+}
+
+/* Meldungen: Fehler tragen den Stempel als Kante, nicht als Flaeche. */
+.meldung-fehler {
+  border-left: 3px solid var(--stempel);
+  padding: var(--raum-3) var(--raum-4);
+  background: var(--papier-tief);
+  margin-bottom: var(--raum-4);
+}
+
+fieldset {
+  border: 1px solid var(--linie);
+  padding: var(--raum-4);
+  margin: 0 0 var(--raum-6);
+}
+
+legend {
+  font-family: var(--schrift-zahl);
+  font-size: var(--grad-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tinte-leise);
+  padding: 0 var(--raum-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,64 +1,92 @@
-<h1>Warenkorb</h1>
+<header class="kopfzeile">
+  <p class="marke">Bestellblock</p>
+  <h1>Warenkorb</h1>
+</header>
 
 @if (cartService.items().length === 0) {
-  <p>Ihr Warenkorb ist leer.</p>
-  <a routerLink="/">Zurück zur Speisekarte</a>
+  <div class="leer">
+    <p>Noch nichts ausgewählt.</p>
+    <a routerLink="/" class="knopf">Zur Speisekarte</a>
+  </div>
 } @else {
-  <ul class="cart-items">
+  <ul class="positionen">
     @for (item of cartService.items(); track item.id) {
-      <li class="cart-item">
-        <div class="cart-item-info">
-          <strong>{{ item.pizza.name }}</strong>
+      <li class="position">
+        <span class="anzahl zahl" aria-hidden="true">{{ item.quantity }}&times;</span>
+
+        <div class="position-text">
+          <p class="zeile">
+            <span class="name">{{ item.pizza.name }}</span>
+            <span class="fuehrung" aria-hidden="true"></span>
+            <span class="betrag">{{ lineTotal(item) | number: '1.2-2' }}</span>
+          </p>
+
           @if (item.toppings.length > 0) {
-            <div class="toppings">{{ item.toppings.map((t) => t.name).join(', ') }}</div>
+            <p class="belag">{{ item.toppings.map((t) => t.name).join(', ') }}</p>
           }
-          <div class="unit-price">{{ unitPrice(item) | number: '1.2-2' }} &euro; / St&uuml;ck</div>
+
+          <p class="einzelpreis">
+            <span class="zahl">{{ unitPrice(item) | number: '1.2-2' }} €</span> pro Stück
+          </p>
+
+          <div class="aktionen">
+            <span class="mengensteller">
+              <button
+                type="button"
+                class="knopf-leise schritt"
+                [attr.data-testid]="'decrease-quantity-' + item.id"
+                [attr.aria-label]="'Menge verringern: ' + item.pizza.name"
+                (click)="decreaseQuantity(item.id, item.quantity)"
+                [disabled]="item.quantity <= 1"
+              >
+                −
+              </button>
+              <span class="zahl menge-wert">{{ item.quantity }}</span>
+              <button
+                type="button"
+                class="knopf-leise schritt"
+                [attr.data-testid]="'increase-quantity-' + item.id"
+                [attr.aria-label]="'Menge erhöhen: ' + item.pizza.name"
+                (click)="increaseQuantity(item.id, item.quantity)"
+              >
+                +
+              </button>
+            </span>
+
+            <a
+              class="textlink"
+              [routerLink]="['/pizza', item.pizza.id]"
+              [state]="{
+                editItemId: item.id,
+                toppingIds: item.toppings.map((t) => t.id),
+                quantity: item.quantity,
+              }"
+              >Ändern</a
+            >
+            <button
+              type="button"
+              class="textlink"
+              [attr.data-testid]="'remove-item-' + item.id"
+              [attr.aria-label]="'Entfernen: ' + item.pizza.name"
+              (click)="removeItem(item.id)"
+            >
+              Entfernen
+            </button>
+          </div>
         </div>
-
-        <div class="quantity-controls">
-          <button
-            type="button"
-            [attr.data-testid]="'decrease-quantity-' + item.id"
-            [attr.aria-label]="'Menge verringern: ' + item.pizza.name"
-            (click)="decreaseQuantity(item.id, item.quantity)"
-          >
-            -
-          </button>
-          <span>{{ item.quantity }}</span>
-          <button
-            type="button"
-            [attr.data-testid]="'increase-quantity-' + item.id"
-            [attr.aria-label]="'Menge erhöhen: ' + item.pizza.name"
-            (click)="increaseQuantity(item.id, item.quantity)"
-          >
-            +
-          </button>
-        </div>
-
-        <div class="line-total">{{ lineTotal(item) | number: '1.2-2' }} &euro;</div>
-
-        <a
-          [routerLink]="['/pizza', item.pizza.id]"
-          [state]="{
-            editItemId: item.id,
-            toppingIds: item.toppings.map((t) => t.id),
-            quantity: item.quantity,
-          }"
-          >Bearbeiten</a
-        >
-        <button
-          type="button"
-          [attr.data-testid]="'remove-item-' + item.id"
-          [attr.aria-label]="'Entfernen: ' + item.pizza.name"
-          (click)="removeItem(item.id)"
-        >
-          Entfernen
-        </button>
       </li>
     }
   </ul>
 
-  <p class="total">Gesamtsumme: {{ cartService.total() | number: '1.2-2' }} &euro;</p>
+  <p class="summe">
+    <span>Gesamt</span>
+    <span class="betrag">{{ cartService.total() | number: '1.2-2' }}</span>
+  </p>
 
-  <button type="button" data-testid="checkout-button" (click)="goToCheckout()">Zur Kasse</button>
+  <div class="weiter">
+    <button type="button" class="knopf" data-testid="checkout-button" (click)="goToCheckout()">
+      Zur Kasse
+    </button>
+    <a routerLink="/" class="textlink">Weiter aussuchen</a>
+  </div>
 }

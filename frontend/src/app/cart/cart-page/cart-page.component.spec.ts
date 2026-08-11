@@ -44,7 +44,7 @@ describe('CartPageComponent', () => {
     const fixture = render();
 
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(text).toContain('Warenkorb ist leer');
+    expect(text).toContain('Noch nichts ausgewählt');
     expect(fixture.nativeElement.querySelector('[data-testid="checkout-button"]')).toBeNull();
   });
 
@@ -86,7 +86,7 @@ describe('CartPageComponent', () => {
     fixture.detectChanges();
 
     expect(cartService.items().length).toBe(0);
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Warenkorb ist leer');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Noch nichts ausgewählt');
   });
 
   it('gives each cart row its own action test ids so rows stay individually addressable', () => {

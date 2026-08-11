@@ -1,22 +1,105 @@
-.pizza-grid {
+.karte-kopf {
+  margin-bottom: var(--raum-8);
+}
+
+.karte-kopf h1 {
+  margin: var(--raum-2) 0 var(--raum-3);
+}
+
+.anriss {
+  max-width: 34rem;
+  color: var(--tinte-leise);
+  font-size: var(--grad-s);
+}
+
+/* Die Karte ist eine durchlaufende Liste, kein Kachelraster: so liest man eine
+   Speisekarte, und so laesst sie sich mit einem Blick von oben nach unten scannen. */
+.karte {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 2px solid var(--tinte);
+}
+
+.karte li {
+  border-bottom: 1px solid var(--linie);
+}
+
+.posten {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1rem;
-}
-
-.pizza-card {
-  display: block;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 1rem;
+  grid-template-columns: 3.25rem 1fr;
+  gap: var(--raum-3);
+  padding: var(--raum-4) var(--raum-2);
   text-decoration: none;
-  color: inherit;
+  transition: background-color 120ms ease;
 }
 
-.pizza-card .price {
-  font-weight: 700;
+.posten:hover {
+  background: var(--papier-tief);
 }
 
-.error {
-  color: #b00020;
+.nummer {
+  font-size: var(--grad-s);
+  color: var(--tinte-leise);
+  padding-top: 0.15em;
+  transition: color 120ms ease;
+}
+
+.posten:hover .nummer {
+  color: var(--stempel);
+}
+
+.name {
+  font-family: var(--schrift-display);
+  font-size: var(--grad-l);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  /* Lange Namen duerfen umbrechen, ohne die Punktlinie mitzureissen. */
+  flex: 0 1 auto;
+}
+
+/* Die Punktlinie: das Signaturelement. Sie fuehrt das Auge vom Gericht zum Preis,
+   genau wie auf dem gedruckten Flyer. */
+/* .fuehrung und .betrag kommen aus styles.css */
+
+.preis {
+  font-size: var(--grad-m);
+}
+
+.zutaten {
+  display: block;
+  margin-top: var(--raum-1);
+  max-width: 38rem;
+  color: var(--tinte-leise);
+  font-size: var(--grad-s);
+}
+
+.fussnote {
+  margin-top: var(--raum-6);
+  color: var(--tinte-leise);
+  font-size: var(--grad-xs);
+}
+
+.fehler {
+  border-left: 3px solid var(--stempel);
+  padding: var(--raum-3) var(--raum-4);
+  background: var(--papier-tief);
+  color: var(--tinte);
+}
+
+.leer {
+  color: var(--tinte-leise);
+  font-size: var(--grad-s);
+}
+
+@media (max-width: 32rem) {
+  .posten {
+    grid-template-columns: 2.5rem 1fr;
+    gap: var(--raum-2);
+    padding: var(--raum-3) var(--raum-1);
+  }
+
+  .name {
+    font-size: var(--grad-m);
+  }
 }

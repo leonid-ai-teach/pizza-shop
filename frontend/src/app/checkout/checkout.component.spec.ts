@@ -101,7 +101,7 @@ describe('CheckoutComponent', () => {
     fixture.detectChanges();
 
     httpMock.expectNone('/api/orders');
-    expect(fixture.nativeElement.textContent).toContain('Dieses Feld ist erforderlich.');
+    expect(fixture.nativeElement.textContent).toContain('Bitte ausfüllen.');
   });
 
   it('submits the correct payload for a pickup order and navigates to the confirmation', () => {
