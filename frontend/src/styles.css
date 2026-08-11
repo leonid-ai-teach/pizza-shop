@@ -252,7 +252,8 @@ select {
   margin-bottom: var(--raum-1);
 }
 
-.feld input {
+.feld input,
+.feld select {
   width: 100%;
   padding: var(--raum-2) var(--raum-2);
   border: 1px solid var(--linie);
@@ -260,11 +261,13 @@ select {
   border-radius: 0;
 }
 
-.feld input:hover {
+.feld input:hover,
+.feld select:hover {
   border-color: var(--fuehrung);
 }
 
-.feld input:focus {
+.feld input:focus,
+.feld select:focus {
   border-color: var(--tinte);
 }
 
@@ -296,6 +299,136 @@ legend {
   text-transform: uppercase;
   color: var(--tinte-leise);
   padding: 0 var(--raum-2);
+}
+
+/* ------------------------------------------------------------------
+   Verwaltung
+   Dieselbe Papierwelt, aber dichter gesetzt: hier wird gearbeitet, nicht
+   ausgesucht. Tabellen und Statusstempel liegen global, weil
+   Bestellungen, Pizzen, Toppings und Admins dasselbe Raster brauchen.
+   ------------------------------------------------------------------ */
+
+/* Ueberschriften eine Stufe kleiner als im Laden: eine Arbeitsseite braucht
+   keine Plakatschrift, sie braucht Platz fuer Zeilen. */
+.verwaltung h1 {
+  font-size: var(--grad-xl);
+  margin-bottom: var(--raum-6);
+}
+
+.verwaltung h2 {
+  font-size: var(--grad-l);
+}
+
+/* Eine Tabelle darf breiter sein als das Papier - dann scrollt die
+   Tabelle, nicht die ganze Seite. */
+.tabelle-rahmen {
+  overflow-x: auto;
+  margin-bottom: var(--raum-8);
+}
+
+.tabelle {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--grad-s);
+}
+
+.tabelle th {
+  text-align: left;
+  white-space: nowrap;
+  padding: var(--raum-2) var(--raum-3);
+  border-bottom: 2px solid var(--tinte);
+  font-family: var(--schrift-zahl);
+  font-weight: 400;
+  font-size: var(--grad-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tinte-leise);
+}
+
+.tabelle td {
+  padding: var(--raum-3);
+  border-bottom: 1px solid var(--linie);
+  vertical-align: baseline;
+}
+
+.tabelle tbody tr:hover {
+  background: var(--papier-tief);
+}
+
+/* Betraege und Aktionen stehen rechts und bleiben in einer Zeile - sonst
+   bricht "Deaktivieren" um und die ganze Tabelle wird zackig. */
+.tabelle .rechts {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Die Spalte, die den uebrigen Platz aufnimmt. Ohne sie verteilt der Browser
+   die Breite gleichmaessig und die Zeile zerfaellt in weit auseinander
+   liegende Inseln. */
+.tabelle .dehnbar {
+  width: 99%;
+}
+
+/* Abgeschaltete Eintraege bleiben lesbar, treten aber zurueck. */
+.tabelle tr.stillgelegt td {
+  color: var(--tinte-leise);
+}
+
+/* Aktionen in einer Zeile bleiben Text, keine Knopfreihe - sonst
+   erschlagen fuenf Zeilen die Tabelle mit fuenfzehn Flaechen. */
+.zeilen-aktion {
+  border: 0;
+  background: none;
+  padding: 0;
+  margin-right: var(--raum-3);
+  font-size: var(--grad-s);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--fuehrung);
+  cursor: pointer;
+}
+
+.zeilen-aktion:hover {
+  text-decoration-color: var(--stempel);
+}
+
+/* Status als kleiner Stempel. Die Farbe meldet, was zu tun ist: offen
+   verlangt Handlung, in Arbeit laeuft, abgeschlossen ist erledigt. */
+.status {
+  display: inline-block;
+  padding: 0 var(--raum-2);
+  border: 1px solid currentColor;
+  font-family: var(--schrift-zahl);
+  font-size: var(--grad-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.status-neu {
+  color: var(--stempel);
+}
+
+.status-arbeit {
+  color: var(--oliv);
+}
+
+.status-fertig {
+  color: var(--tinte-leise);
+}
+
+.status-storniert {
+  color: var(--tinte-leise);
+  text-decoration: line-through;
+}
+
+/* Katalog: steht der Eintrag in der Speisekarte oder nicht. */
+.status-aktiv {
+  color: var(--oliv);
+}
+
+.status-inaktiv {
+  color: var(--tinte-leise);
 }
 
 @media (prefers-reduced-motion: reduce) {

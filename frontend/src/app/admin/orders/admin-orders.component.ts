@@ -13,6 +13,25 @@ const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   CANCELLED: [],
 };
 
+/**
+ * Auf einem Knopf steht, was er tut - nicht, wie der Zustand danach heisst.
+ * "Storniert" als Knopfaufschrift liest sich wie eine Meldung, "Stornieren"
+ * wie eine Handlung.
+ */
+const STATUS_AKTIONEN: Record<OrderStatus, string> = {
+  NEW: 'Zurück auf neu',
+  IN_PROGRESS: 'In Bearbeitung nehmen',
+  DONE: 'Fertigstellen',
+  CANCELLED: 'Stornieren',
+};
+
+const STATUS_KLASSEN: Record<OrderStatus, string> = {
+  NEW: 'status-neu',
+  IN_PROGRESS: 'status-arbeit',
+  DONE: 'status-fertig',
+  CANCELLED: 'status-storniert',
+};
+
 @Component({
   selector: 'app-admin-orders',
   imports: [DecimalPipe],
@@ -44,6 +63,15 @@ export class AdminOrdersComponent {
 
   protected statusLabel(status: OrderStatus): string {
     return ORDER_STATUS_LABELS[status] ?? status;
+  }
+
+  protected statusAktion(status: OrderStatus): string {
+    return STATUS_AKTIONEN[status] ?? status;
+  }
+
+  /** Klassen des Statusstempels - die Farbe meldet, ob noch etwas zu tun ist. */
+  protected statusStempel(status: OrderStatus): string {
+    return `status ${STATUS_KLASSEN[status]}`;
   }
 
   protected orderTypeLabel(orderType: OrderResponse['orderType']): string {

@@ -1,13 +1,19 @@
-<h1>Admin-Anmeldung</h1>
+<section class="tor">
+  <p class="marke">Pizza Shop &middot; Verwaltung</p>
+  <h1>Anmeldung</h1>
 
-@if (loginFailed()) {
-  <p class="error" data-testid="login-error">
-    Anmeldung fehlgeschlagen. Dieses Google-Konto ist nicht für den Admin-Bereich freigegeben.
+  @if (loginFailed()) {
+    <p class="meldung-fehler" role="alert" data-testid="login-error">
+      Anmeldung fehlgeschlagen. Dieses Google-Konto ist nicht für den Admin-Bereich freigegeben.
+    </p>
+  }
+
+  <p class="anriss">
+    Der Zugang steht nur freigegebenen Google-Konten offen. Ein vorhandener Admin muss dich vorher
+    einladen.
   </p>
-}
 
-<p>Bitte melden Sie sich mit Ihrem freigegebenen Google-Konto an.</p>
-
-<button type="button" data-testid="google-login" (click)="startGoogleLogin()">
-  Mit Google anmelden
-</button>
+  <button type="button" class="knopf" data-testid="google-login" (click)="startGoogleLogin()">
+    Mit Google anmelden
+  </button>
+</section>

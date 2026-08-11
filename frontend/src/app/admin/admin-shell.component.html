@@ -1,19 +1,24 @@
-<div class="admin-bar">
-  <nav>
-    <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-      >Übersicht</a
-    >
-    <a routerLink="/admin/orders" routerLinkActive="active">Bestellungen</a>
-    <a routerLink="/admin/pizzas" routerLinkActive="active">Pizzen</a>
-    <a routerLink="/admin/toppings" routerLinkActive="active">Toppings</a>
-    <a routerLink="/admin/admins" routerLinkActive="active">Admins</a>
-  </nav>
-  <div class="admin-identity">
+<header class="leiste">
+  <p class="ort">
+    <span class="ort-marke">Pizza&nbsp;Shop</span>
+    <span class="ort-teil">Verwaltung</span>
+  </p>
+  <div class="kennung">
     @if (adminEmail(); as email) {
-      <span data-testid="admin-email">{{ email }}</span>
+      <span class="konto" data-testid="admin-email">{{ email }}</span>
     }
-    <button type="button" data-testid="logout" (click)="logout()">Abmelden</button>
+    <button type="button" class="abmelden" data-testid="logout" (click)="logout()">Abmelden</button>
   </div>
-</div>
+</header>
+
+<nav class="reiter" aria-label="Verwaltung">
+  <a routerLink="/admin" routerLinkActive="aktiv" [routerLinkActiveOptions]="{ exact: true }"
+    >Übersicht</a
+  >
+  <a routerLink="/admin/orders" routerLinkActive="aktiv">Bestellungen</a>
+  <a routerLink="/admin/pizzas" routerLinkActive="aktiv">Pizzen</a>
+  <a routerLink="/admin/toppings" routerLinkActive="aktiv">Toppings</a>
+  <a routerLink="/admin/admins" routerLinkActive="aktiv">Admins</a>
+</nav>
 
 <router-outlet />

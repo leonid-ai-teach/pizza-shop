@@ -1,11 +1,11 @@
 <h1>Bestellungen</h1>
 
 @if (error()) {
-  <p class="error" data-testid="orders-error">{{ error() }}</p>
+  <p class="meldung-fehler" role="alert" data-testid="orders-error">{{ error() }}</p>
 }
 
-<label class="filter">
-  Status filtern
+<label class="feld filter">
+  <span>Status filtern</span>
   <select data-testid="status-filter" (change)="applyFilter($any($event.target).value)">
     <option value="" [selected]="statusFilter() === ''">Alle</option>
     @for (status of statuses; track status) {
@@ -17,91 +17,119 @@
 </label>
 
 @if (orders().length === 0) {
-  <p data-testid="no-orders">Keine Bestellungen gefunden.</p>
+  <p class="leer" data-testid="no-orders">Keine Bestellungen gefunden.</p>
 } @else {
-  <table class="orders">
-    <thead>
-      <tr>
-        <th>Nr.</th>
-        <th>Kunde</th>
-        <th>Art</th>
-        <th>Status</th>
-        <th>Summe</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (order of orders(); track order.id) {
+  <div class="tabelle-rahmen">
+    <table class="tabelle">
+      <thead>
         <tr>
-          <td>#{{ order.orderNumber }}</td>
-          <td>{{ order.customerData.firstName }} {{ order.customerData.lastName }}</td>
-          <td>{{ orderTypeLabel(order.orderType) }}</td>
-          <td>{{ statusLabel(order.status) }}</td>
-          <td>{{ order.totalPrice | number: '1.2-2' }} &euro;</td>
-          <td>
-            <button
-              type="button"
-              [attr.data-testid]="'view-order-' + order.id"
-              (click)="selectOrder(order)"
-            >
-              Details
-            </button>
-          </td>
+          <th>Nr.</th>
+          <th class="dehnbar">Kunde</th>
+          <th>Art</th>
+          <th>Status</th>
+          <th class="rechts">Summe</th>
+          <th></th>
         </tr>
-      }
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        @for (order of orders(); track order.id) {
+          <tr [class.gewaehlt]="order.id === selectedOrder()?.id">
+            <td class="zahl">#{{ order.orderNumber }}</td>
+            <td class="dehnbar">
+              {{ order.customerData.firstName }} {{ order.customerData.lastName }}
+            </td>
+            <td>{{ orderTypeLabel(order.orderType) }}</td>
+            <td>
+              <span [class]="statusStempel(order.status)">{{ statusLabel(order.status) }}</span>
+            </td>
+            <td class="rechts betrag">{{ order.totalPrice | number: '1.2-2' }}</td>
+            <td class="rechts">
+              <button
+                type="button"
+                class="zeilen-aktion"
+                [attr.data-testid]="'view-order-' + order.id"
+                (click)="selectOrder(order)"
+              >
+                Details
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
 }
 
 @if (selectedOrder(); as order) {
-  <section class="order-detail" data-testid="order-detail">
-    <h2>Bestellung #{{ order.orderNumber }}</h2>
-    <p>Status: {{ statusLabel(order.status) }}</p>
-    <p>Bestellart: {{ orderTypeLabel(order.orderType) }}</p>
+  <section class="zettel" data-testid="order-detail">
+    <header class="zettel-kopf">
+      <h2 class="zahl">#{{ order.orderNumber }}</h2>
+      <span [class]="statusStempel(order.status)">{{ statusLabel(order.status) }}</span>
+    </header>
 
-    <h3>Kundendaten</h3>
-    <p>
-      {{ order.customerData.firstName }} {{ order.customerData.lastName }}<br />
-      {{ order.customerData.phone }} &middot; {{ order.customerData.email }}
-    </p>
-    @if (order.orderType === 'DELIVERY') {
-      <p data-testid="delivery-address">
-        {{ order.customerData.street }} {{ order.customerData.houseNumber }}<br />
-        {{ order.customerData.postalCode }} {{ order.customerData.city }}
-      </p>
-    }
+    <div class="spalten">
+      <div>
+        <p class="marke">{{ order.orderType === 'DELIVERY' ? 'Lieferung an' : 'Abholung durch' }}</p>
+        <p class="kunde">
+          {{ order.customerData.firstName }} {{ order.customerData.lastName }}
+        </p>
+        <p class="kontakt zahl">{{ order.customerData.phone }}</p>
+        <p class="kontakt">{{ order.customerData.email }}</p>
+        @if (order.orderType === 'DELIVERY') {
+          <p class="anschrift" data-testid="delivery-address">
+            {{ order.customerData.street }} {{ order.customerData.houseNumber }}<br />
+            {{ order.customerData.postalCode }} {{ order.customerData.city }}
+          </p>
+        }
+      </div>
 
-    <h3>Positionen</h3>
-    <ul>
-      <!-- Tracked by position: one order can hold the same pizza twice with different
-           toppings, so pizzaId is not unique within items. -->
-      @for (item of order.items; track $index) {
-        <li>
-          {{ item.quantity }}x {{ item.pizzaName }}
-          @if (item.toppings.length > 0) {
-            <span class="toppings">({{ item.toppings.map((t) => t.name).join(', ') }})</span>
+      <div>
+        <p class="marke">Positionen</p>
+        <ul class="positionen">
+          <!-- Tracked by position: one order can hold the same pizza twice with different
+               toppings, so pizzaId is not unique within items. -->
+          @for (item of order.items; track $index) {
+            <li>
+              <span class="zeile">
+                <span class="anzahl zahl">{{ item.quantity }}&times;</span>
+                <span>{{ item.pizzaName }}</span>
+                <span class="fuehrung" aria-hidden="true"></span>
+                <span class="betrag">{{ item.itemTotalPrice | number: '1.2-2' }}</span>
+              </span>
+              @if (item.toppings.length > 0) {
+                <span class="belag">mit {{ item.toppings.map((t) => t.name).join(', ') }}</span>
+              }
+            </li>
           }
-          &mdash; {{ item.itemTotalPrice | number: '1.2-2' }} &euro;
-        </li>
-      }
-    </ul>
-    <p class="total">Gesamtsumme: {{ order.totalPrice | number: '1.2-2' }} &euro;</p>
+        </ul>
 
-    <h3>Status ändern</h3>
-    @if (selectedOrderTransitions().length === 0) {
-      <p data-testid="no-transitions">
-        Diese Bestellung ist abgeschlossen; der Status kann nicht mehr geändert werden.
-      </p>
-    } @else {
-      @for (target of selectedOrderTransitions(); track target) {
-        <button
-          type="button"
-          [attr.data-testid]="'set-status-' + target"
-          (click)="changeStatus(order, target)"
-        >
-          {{ statusLabel(target) }}
-        </button>
+        <p class="summe">
+          <span>Summe</span>
+          <span class="betrag">{{ order.totalPrice | number: '1.2-2' }}</span>
+        </p>
+      </div>
+    </div>
+
+    <footer class="naechster-schritt">
+      @if (selectedOrderTransitions().length === 0) {
+        <p class="abgeschlossen" data-testid="no-transitions">
+          Diese Bestellung ist abgeschlossen; der Status kann nicht mehr geändert werden.
+        </p>
+      } @else {
+        <p class="marke">Nächster Schritt</p>
+        <div class="schritte">
+          @for (target of selectedOrderTransitions(); track target) {
+            <button
+              type="button"
+              [class]="target === 'CANCELLED' ? 'knopf-leise' : 'knopf'"
+              [attr.data-testid]="'set-status-' + target"
+              (click)="changeStatus(order, target)"
+            >
+              {{ statusAktion(target) }}
+            </button>
+          }
+        </div>
       }
-    }
+    </footer>
   </section>
 }

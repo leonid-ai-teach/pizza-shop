@@ -1,33 +1,94 @@
-.admin-bar {
+/* Die Verwaltung dreht das Papier um: Tinte als Flaeche, Papier als Schrift.
+   Der Umschlag ist Absicht - wer hier landet, soll auf den ersten Blick sehen,
+   dass er hinter dem Tresen steht und nicht im Laden. */
+.leiste {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 1rem;
-  padding-bottom: 0.75rem;
-  margin-bottom: 1.5rem;
-  border-bottom: 2px solid #e0e0e0;
+  gap: var(--raum-3) var(--raum-4);
+  padding: var(--raum-3) var(--raum-4);
+  background: var(--tinte);
+  color: var(--papier);
 }
 
-nav {
+.ort {
   display: flex;
-  gap: 1.25rem;
+  align-items: baseline;
+  gap: var(--raum-3);
+}
+
+.ort-marke {
+  font-family: var(--schrift-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: var(--grad-l);
+}
+
+.ort-teil {
+  font-family: var(--schrift-zahl);
+  font-size: var(--grad-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--linie);
+}
+
+.kennung {
+  display: flex;
+  align-items: baseline;
+  gap: var(--raum-3);
+}
+
+/* Die angemeldete Adresse steht bewusst da: bei geteilten Rechnern in der
+   Kueche ist "wer bin ich gerade" eine echte Frage. */
+.konto {
+  font-family: var(--schrift-zahl);
+  font-size: var(--grad-xs);
+  color: var(--linie);
+  overflow-wrap: anywhere;
+}
+
+.abmelden {
+  border: 1px solid var(--linie);
+  background: none;
+  color: var(--papier);
+  padding: var(--raum-1) var(--raum-3);
+  font-size: var(--grad-xs);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.abmelden:hover {
+  background: var(--papier);
+  color: var(--tinte);
+}
+
+.abmelden:focus-visible {
+  outline-color: var(--papier);
+}
+
+/* Reiter wie die Register einer Kladde. */
+.reiter {
+  display: flex;
   flex-wrap: wrap;
+  gap: var(--raum-1);
+  border-bottom: 1px solid var(--linie);
+  margin-bottom: var(--raum-8);
 }
 
-nav a {
+.reiter a {
+  padding: var(--raum-2) var(--raum-3);
+  font-size: var(--grad-s);
   text-decoration: none;
-  color: inherit;
+  border-bottom: 2px solid transparent;
+  /* Ueberdeckt die Linie des Registers, damit der aktive Reiter daran haengt. */
+  margin-bottom: -1px;
 }
 
-nav a.active {
-  font-weight: 700;
+.reiter a:hover {
+  background: var(--papier-tief);
 }
 
-.admin-identity {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: #666;
-  font-size: 0.9rem;
+.reiter a.aktiv {
+  border-bottom-color: var(--stempel);
 }

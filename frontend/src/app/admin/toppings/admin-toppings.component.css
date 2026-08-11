@@ -1,35 +1,39 @@
-.catalog {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 2rem;
+.name {
+  font-family: var(--schrift-display);
+  text-transform: uppercase;
+  font-size: var(--grad-m);
 }
 
-.catalog th,
-.catalog td {
-  text-align: left;
-  padding: 0.5rem;
-  border-bottom: 1px solid #e0e0e0;
+.beschreibung {
+  color: var(--tinte-leise);
 }
 
-.catalog tr.inactive {
-  color: #999;
+.gewaehlt td {
+  background: var(--papier-tief);
 }
 
-.catalog button {
-  margin-right: 0.5rem;
+.bogen {
+  max-width: 32rem;
+  padding: var(--raum-6);
+  border: 1px solid var(--linie);
+  border-top: 3px solid var(--tinte);
+  background: #fffdf8;
 }
 
-form label {
-  display: block;
-  margin: 0.5rem 0;
+.bogen h2 {
+  margin-bottom: var(--raum-6);
 }
 
-.field-error {
-  display: block;
-  color: #b00020;
-  font-size: 0.85rem;
+/* Ein Aufpreis ist eine kurze Zahl - das Feld muss nicht die ganze Breite
+   des Bogens einnehmen. */
+.preis {
+  max-width: 10rem;
 }
 
-.error {
-  color: #b00020;
+.aktionen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--raum-3);
+  margin-top: var(--raum-6);
 }

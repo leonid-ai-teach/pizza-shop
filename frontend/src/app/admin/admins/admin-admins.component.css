@@ -1,31 +1,38 @@
-.hint {
-  color: #666;
+.anriss {
+  max-width: 42rem;
+  margin: var(--raum-3) 0 var(--raum-6);
+  color: var(--tinte-leise);
+  font-size: var(--grad-s);
 }
 
-.admins {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 2rem;
+/* Adressen im Monospace: hier zaehlt jedes Zeichen, Verwechslungen zwischen
+   l/1 oder O/0 entscheiden ueber einen Zugang. */
+.konto {
+  font-family: var(--schrift-zahl);
+  font-size: var(--grad-xs);
+  overflow-wrap: anywhere;
 }
 
-.admins th,
-.admins td {
-  text-align: left;
-  padding: 0.5rem;
-  border-bottom: 1px solid #e0e0e0;
+/* Datum und Uhrzeit gehoeren zusammen und duerfen nicht umbrechen. */
+.datum {
+  white-space: nowrap;
 }
 
-form label {
+.bogen {
+  max-width: 32rem;
+  padding: var(--raum-6);
+  border: 1px solid var(--linie);
+  border-top: 3px solid var(--tinte);
+  background: #fffdf8;
+}
+
+.bogen h2 {
+  margin-bottom: var(--raum-6);
+}
+
+.hinweis {
   display: block;
-  margin: 0.5rem 0;
-}
-
-.field-error {
-  display: block;
-  color: #b00020;
-  font-size: 0.85rem;
-}
-
-.error {
-  color: #b00020;
+  margin-top: var(--raum-1);
+  color: var(--tinte-leise);
+  font-size: var(--grad-xs);
 }

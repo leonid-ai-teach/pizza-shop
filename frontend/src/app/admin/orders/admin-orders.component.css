@@ -1,39 +1,114 @@
+/* Der Filter ist ein Werkzeug, kein Formularfeld - er nimmt nicht die ganze
+   Breite ein. */
 .filter {
+  max-width: 16rem;
+}
+
+.leer {
+  color: var(--tinte-leise);
+  padding: var(--raum-6) 0;
+}
+
+.gewaehlt td {
+  background: var(--papier-tief);
+}
+
+/* Die geoeffnete Bestellung ist der Zettel, der in der Kueche haengt: eigene
+   Flaeche, kraeftige Kante, alles Wichtige auf einen Blick. */
+.zettel {
+  border: 1px solid var(--linie);
+  border-top: 3px solid var(--tinte);
+  background: #fffdf8;
+  padding: var(--raum-6);
+}
+
+.zettel-kopf {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--raum-4);
+  padding-bottom: var(--raum-4);
+  border-bottom: 1px dashed var(--fuehrung);
+}
+
+.zettel-kopf h2 {
+  font-family: var(--schrift-zahl);
+  font-size: var(--grad-xl);
+  text-transform: none;
+}
+
+.spalten {
+  display: grid;
+  gap: var(--raum-8);
+  margin-top: var(--raum-4);
+}
+
+@media (min-width: 45rem) {
+  .spalten {
+    grid-template-columns: 1fr 1.4fr;
+  }
+}
+
+.kunde {
+  margin-top: var(--raum-2);
+  font-family: var(--schrift-display);
+  text-transform: uppercase;
+  font-size: var(--grad-l);
+}
+
+.kontakt {
+  font-size: var(--grad-s);
+}
+
+.anschrift {
+  margin-top: var(--raum-3);
+  padding-top: var(--raum-3);
+  border-top: 1px solid var(--linie);
+  font-size: var(--grad-s);
+}
+
+.positionen {
+  list-style: none;
+  margin: var(--raum-2) 0 0;
+  padding: 0;
+}
+
+.positionen li {
+  padding: var(--raum-2) 0;
+}
+
+.positionen .zeile {
+  /* Das Listenelement selbst bleibt Block, damit der Belag darunter passt. */
+  display: flex;
+}
+
+.anzahl {
+  color: var(--stempel);
+  flex: none;
+}
+
+.belag {
   display: block;
-  margin-bottom: 1rem;
+  margin-top: var(--raum-1);
+  padding-left: 2.1rem;
+  color: var(--tinte-leise);
+  font-size: var(--grad-xs);
 }
 
-.orders {
-  width: 100%;
-  border-collapse: collapse;
+.naechster-schritt {
+  margin-top: var(--raum-6);
+  padding-top: var(--raum-4);
+  border-top: 1px dashed var(--fuehrung);
 }
 
-.orders th,
-.orders td {
-  text-align: left;
-  padding: 0.5rem;
-  border-bottom: 1px solid #e0e0e0;
+.schritte {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--raum-3);
+  margin-top: var(--raum-2);
 }
 
-.order-detail {
-  margin-top: 2rem;
-  padding: 1rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-}
-
-.order-detail button {
-  margin-right: 0.5rem;
-}
-
-.toppings {
-  color: #666;
-}
-
-.total {
-  font-weight: 700;
-}
-
-.error {
-  color: #b00020;
+.abgeschlossen {
+  color: var(--tinte-leise);
+  font-size: var(--grad-s);
 }

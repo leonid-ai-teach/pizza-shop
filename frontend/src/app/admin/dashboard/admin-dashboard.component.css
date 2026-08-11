@@ -1,31 +1,52 @@
-.kpi-row {
+.stand-marke {
+  margin-bottom: var(--raum-2);
+}
+
+/* Die Zahl ist die Nachricht, nicht die Kachel: grosse Ziffer, Beschriftung
+   darunter, Rahmen nur als duenne Trennung. */
+.stand {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  border-top: 2px solid var(--tinte);
+  border-left: 1px solid var(--linie);
+  margin-bottom: var(--raum-8);
 }
 
-.kpi {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 1.25rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+.posten {
+  display: block;
+  padding: var(--raum-4);
+  border-right: 1px solid var(--linie);
+  border-bottom: 1px solid var(--linie);
   text-decoration: none;
-  color: inherit;
 }
 
-.kpi-label {
-  color: #666;
-  font-size: 0.9rem;
+.posten:hover {
+  background: var(--papier-tief);
 }
 
-.kpi-value {
-  font-size: 2rem;
-  font-weight: 700;
+.posten-zahl {
+  display: block;
+  font-size: var(--grad-2xl);
+  line-height: 1;
+  letter-spacing: -0.03em;
 }
 
-.error {
-  color: #b00020;
+.posten-name {
+  display: block;
+  margin-top: var(--raum-2);
+  font-family: var(--schrift-display);
+  text-transform: uppercase;
+  font-size: var(--grad-m);
+}
+
+.posten-hinweis {
+  display: block;
+  color: var(--tinte-leise);
+  font-size: var(--grad-xs);
+}
+
+/* Nur der offene Stapel traegt Farbe - er ist der einzige, der eine
+   Handlung verlangt. */
+.posten.offen .posten-zahl {
+  color: var(--stempel);
 }

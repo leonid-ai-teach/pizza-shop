@@ -1,3 +1,21 @@
-.error {
-  color: #b00020;
+/* Die Anmeldung ist eine Tuer, keine Seite: ein schmales Blatt in der Mitte,
+   nichts drumherum, was ablenken koennte. */
+.tor {
+  max-width: 26rem;
+  margin: var(--raum-8) auto;
+  padding: var(--raum-8) var(--raum-6);
+  border: 1px solid var(--linie);
+  border-top: 3px solid var(--tinte);
+  background: #fffdf8;
+}
+
+.tor h1 {
+  font-size: var(--grad-xl);
+  margin: var(--raum-2) 0 var(--raum-4);
+}
+
+.anriss {
+  margin-bottom: var(--raum-6);
+  color: var(--tinte-leise);
+  font-size: var(--grad-s);
 }

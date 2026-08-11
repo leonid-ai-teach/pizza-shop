@@ -74,6 +74,14 @@ main {
   padding: var(--raum-8) var(--raum-6) var(--raum-16);
 }
 
+/* Die Speisekarte lebt von der schmalen Spalte, die Verwaltung nicht: dort
+   stehen Tabellen mit sechs Spalten. Die uebrigen Abweichungen der
+   Verwaltung stehen global, weil sie in deren Unterseiten wirken muessen. */
+main.verwaltung {
+  max-width: 72rem;
+  padding-top: var(--raum-6);
+}
+
 @media (max-width: 32rem) {
   .kopf-inhalt {
     padding: var(--raum-3) var(--raum-4);

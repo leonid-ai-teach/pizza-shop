@@ -1,72 +1,89 @@
 <h1>Toppings verwalten</h1>
 
 @if (error()) {
-  <p class="error" data-testid="toppings-error">{{ error() }}</p>
+  <p class="meldung-fehler" role="alert" data-testid="toppings-error">{{ error() }}</p>
 }
 
-<table class="catalog">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Beschreibung</th>
-      <th>Preis</th>
-      <th>Status</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    @for (topping of toppings(); track topping.id) {
-      <tr [class.inactive]="!topping.active">
-        <td>{{ topping.name }}</td>
-        <td>{{ topping.description }}</td>
-        <td>{{ topping.price | number: '1.2-2' }} &euro;</td>
-        <td>{{ topping.active ? 'Aktiv' : 'Inaktiv' }}</td>
-        <td>
-          <button
-            type="button"
-            [attr.data-testid]="'edit-topping-' + topping.id"
-            (click)="startEdit(topping)"
-          >
-            Bearbeiten
-          </button>
-          <button
-            type="button"
-            [attr.data-testid]="'toggle-topping-' + topping.id"
-            (click)="toggleActive(topping)"
-          >
-            {{ topping.active ? 'Deaktivieren' : 'Aktivieren' }}
-          </button>
-        </td>
+<div class="tabelle-rahmen">
+  <table class="tabelle">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th class="dehnbar">Beschreibung</th>
+        <th class="rechts">Preis</th>
+        <th>Status</th>
+        <th></th>
       </tr>
-    }
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      @for (topping of toppings(); track topping.id) {
+        <tr [class.stillgelegt]="!topping.active" [class.gewaehlt]="topping.id === editingId()">
+          <td class="name">{{ topping.name }}</td>
+          <td class="beschreibung dehnbar">{{ topping.description }}</td>
+          <td class="rechts betrag">{{ topping.price | number: '1.2-2' }}</td>
+          <td>
+            <span [class]="topping.active ? 'status status-aktiv' : 'status status-inaktiv'">{{
+              topping.active ? 'Aktiv' : 'Inaktiv'
+            }}</span>
+          </td>
+          <td class="rechts">
+            <button
+              type="button"
+              class="zeilen-aktion"
+              [attr.data-testid]="'edit-topping-' + topping.id"
+              (click)="startEdit(topping)"
+            >
+              Bearbeiten
+            </button>
+            <button
+              type="button"
+              class="zeilen-aktion"
+              [attr.data-testid]="'toggle-topping-' + topping.id"
+              (click)="toggleActive(topping)"
+            >
+              {{ topping.active ? 'Deaktivieren' : 'Aktivieren' }}
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
 
-<h2>{{ editingId() ? 'Topping bearbeiten' : 'Neues Topping anlegen' }}</h2>
+<section class="bogen">
+  <h2>{{ editingId() ? 'Topping bearbeiten' : 'Neues Topping anlegen' }}</h2>
 
-<form [formGroup]="form" (ngSubmit)="save()">
-  <label>
-    Name
-    <input type="text" formControlName="name" data-testid="topping-name" />
-  </label>
-  @if (form.controls.name.invalid && form.controls.name.touched) {
-    <span class="field-error">Dieses Feld ist erforderlich.</span>
-  }
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <label class="feld">
+      <span>Name</span>
+      <input type="text" formControlName="name" data-testid="topping-name" />
+      @if (form.controls.name.invalid && form.controls.name.touched) {
+        <small class="feld-fehler">Bitte ausfüllen.</small>
+      }
+    </label>
 
-  <label>
-    Beschreibung
-    <input type="text" formControlName="description" data-testid="topping-description" />
-  </label>
+    <label class="feld">
+      <span>Beschreibung</span>
+      <input type="text" formControlName="description" data-testid="topping-description" />
+    </label>
 
-  <label>
-    Preis (&euro;)
-    <input type="number" step="0.01" formControlName="price" data-testid="topping-price" />
-  </label>
+    <label class="feld preis">
+      <span>Aufpreis (&euro;)</span>
+      <input type="number" step="0.01" formControlName="price" data-testid="topping-price" />
+    </label>
 
-  <button type="submit" data-testid="save-topping">Speichern</button>
-  @if (editingId()) {
-    <button type="button" data-testid="cancel-edit-topping" (click)="startCreate()">
-      Abbrechen
-    </button>
-  }
-</form>
+    <div class="aktionen">
+      <button type="submit" class="knopf" data-testid="save-topping">Speichern</button>
+      @if (editingId()) {
+        <button
+          type="button"
+          class="knopf-leise"
+          data-testid="cancel-edit-topping"
+          (click)="startCreate()"
+        >
+          Abbrechen
+        </button>
+      }
+    </div>
+  </form>
+</section>

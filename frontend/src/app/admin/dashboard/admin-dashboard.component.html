@@ -1,26 +1,36 @@
 <h1>Übersicht</h1>
 
 @if (loadError()) {
-  <p class="error">Die Kennzahlen konnten nicht geladen werden.</p>
+  <p class="meldung-fehler" role="alert">Die Kennzahlen konnten nicht geladen werden.</p>
 }
 
 @if (summary(); as s) {
-  <div class="kpi-row">
-    <a class="kpi" routerLink="/admin/orders" [queryParams]="{ status: 'NEW' }">
-      <span class="kpi-label">Neue Bestellungen</span>
-      <span class="kpi-value" data-testid="kpi-new">{{ s.newCount }}</span>
+  <p class="marke stand-marke">Tagesstand</p>
+
+  <div class="stand">
+    <a class="posten offen" routerLink="/admin/orders" [queryParams]="{ status: 'NEW' }">
+      <span class="posten-zahl zahl" data-testid="kpi-new">{{ s.newCount }}</span>
+      <span class="posten-name">Neu</span>
+      <span class="posten-hinweis">warten auf Annahme</span>
     </a>
-    <a class="kpi" routerLink="/admin/orders" [queryParams]="{ status: 'IN_PROGRESS' }">
-      <span class="kpi-label">In Bearbeitung</span>
-      <span class="kpi-value" data-testid="kpi-in-progress">{{ s.inProgressCount }}</span>
+    <a class="posten" routerLink="/admin/orders" [queryParams]="{ status: 'IN_PROGRESS' }">
+      <span class="posten-zahl zahl" data-testid="kpi-in-progress">{{ s.inProgressCount }}</span>
+      <span class="posten-name">In Bearbeitung</span>
+      <span class="posten-hinweis">sind in der Küche</span>
     </a>
-    <a class="kpi" routerLink="/admin/orders" [queryParams]="{ status: 'DONE' }">
-      <span class="kpi-label">Fertiggestellt</span>
-      <span class="kpi-value" data-testid="kpi-done">{{ s.doneCount }}</span>
+    <a class="posten" routerLink="/admin/orders" [queryParams]="{ status: 'DONE' }">
+      <span class="posten-zahl zahl" data-testid="kpi-done">{{ s.doneCount }}</span>
+      <span class="posten-name">Fertiggestellt</span>
+      <span class="posten-hinweis">sind raus</span>
     </a>
   </div>
 
-  <a routerLink="/admin/orders" [queryParams]="{ status: 'NEW' }" data-testid="incoming-orders-link">
+  <a
+    class="knopf"
+    routerLink="/admin/orders"
+    [queryParams]="{ status: 'NEW' }"
+    data-testid="incoming-orders-link"
+  >
     Zu den eingehenden Bestellungen
   </a>
 }

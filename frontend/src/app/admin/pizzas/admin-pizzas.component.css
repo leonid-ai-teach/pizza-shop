@@ -1,49 +1,79 @@
-.catalog {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 2rem;
+.name {
+  font-family: var(--schrift-display);
+  text-transform: uppercase;
+  font-size: var(--grad-m);
 }
 
-.catalog th,
-.catalog td {
-  text-align: left;
-  padding: 0.5rem;
-  border-bottom: 1px solid #e0e0e0;
+.gewaehlt td {
+  background: var(--papier-tief);
 }
 
-.catalog tr.inactive {
-  color: #999;
+/* Der Bearbeitungsbogen liegt als eigenes Blatt unter der Liste. */
+.bogen {
+  max-width: 42rem;
+  padding: var(--raum-6);
+  border: 1px solid var(--linie);
+  border-top: 3px solid var(--tinte);
+  background: #fffdf8;
 }
 
-.catalog button {
-  margin-right: 0.5rem;
+.bogen h2 {
+  margin-bottom: var(--raum-6);
 }
 
-form label {
+.paar {
+  display: grid;
+  gap: 0 var(--raum-4);
+}
+
+@media (min-width: 33rem) {
+  .paar {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.hinweis {
   display: block;
-  margin: 0.5rem 0;
+  margin-top: var(--raum-1);
+  color: var(--tinte-leise);
+  font-size: var(--grad-xs);
 }
 
-fieldset {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  margin: 1rem 0;
+.hinweis code {
+  font-family: var(--schrift-zahl);
 }
 
-.topping {
-  display: block;
+/* Toppings als Ankreuzliste, mehrspaltig - sonst wird das Formular zu lang. */
+.haken-liste {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--raum-2) var(--raum-4);
 }
 
-.muted {
-  color: #999;
+.haken {
+  display: flex;
+  align-items: baseline;
+  gap: var(--raum-2);
+  font-size: var(--grad-s);
+  cursor: pointer;
 }
 
-.field-error {
-  display: block;
-  color: #b00020;
-  font-size: 0.85rem;
+.haken input {
+  accent-color: var(--stempel);
+  width: 1rem;
+  height: 1rem;
+  flex: none;
 }
 
-.error {
-  color: #b00020;
+.stillgelegt-hinweis {
+  color: var(--tinte-leise);
+  font-size: var(--grad-xs);
+}
+
+.aktionen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--raum-3);
+  margin-top: var(--raum-6);
 }

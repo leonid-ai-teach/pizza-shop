@@ -140,7 +140,7 @@ describe('AdminPizzasComponent', () => {
     fixture.detectChanges();
 
     httpMock.expectNone('/api/admin/pizzas');
-    expect(el.textContent).toContain('Dieses Feld ist erforderlich.');
+    expect(el.textContent).toContain('Bitte ausfüllen.');
   });
 
   it('surfaces the server error message when saving fails', () => {

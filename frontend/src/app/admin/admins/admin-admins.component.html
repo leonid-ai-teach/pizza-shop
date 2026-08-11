@@ -1,43 +1,50 @@
 <h1>Admins verwalten</h1>
 
-<p class="hint">
+<p class="anriss">
   Freigegebene Google-Konten. Neue Admins müssen vorab eingeladen werden, bevor sie sich zum
   ersten Mal anmelden können.
 </p>
 
 @if (error()) {
-  <p class="error" data-testid="admins-error">{{ error() }}</p>
+  <p class="meldung-fehler" role="alert" data-testid="admins-error">{{ error() }}</p>
 }
 
-<table class="admins">
-  <thead>
-    <tr>
-      <th>E-Mail</th>
-      <th>Freigegeben am</th>
-      <th>Freigegeben von</th>
-    </tr>
-  </thead>
-  <tbody>
-    @for (admin of admins(); track admin.email) {
+<div class="tabelle-rahmen">
+  <table class="tabelle">
+    <thead>
       <tr>
-        <td>{{ admin.email }}</td>
-        <td>{{ admin.approvedAt | date: 'dd.MM.yyyy HH:mm' }}</td>
-        <td>{{ admin.approvedBy }}</td>
+        <th class="dehnbar">E-Mail</th>
+        <th>Freigegeben am</th>
+        <th>Freigegeben von</th>
       </tr>
-    }
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      @for (admin of admins(); track admin.email) {
+        <tr>
+          <td class="konto">{{ admin.email }}</td>
+          <td class="zahl datum">{{ admin.approvedAt | date: 'dd.MM.yyyy HH:mm' }}</td>
+          <td class="konto">{{ admin.approvedBy }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
 
-<h2>Neuen Admin einladen</h2>
+<section class="bogen">
+  <h2>Neuen Admin einladen</h2>
 
-<form [formGroup]="form" (ngSubmit)="invite()">
-  <label>
-    E-Mail-Adresse
-    <input type="email" formControlName="email" data-testid="invite-email" />
-  </label>
-  @if (form.controls.email.invalid && form.controls.email.touched) {
-    <span class="field-error">Bitte geben Sie eine gültige E-Mail-Adresse ein.</span>
-  }
+  <form [formGroup]="form" (ngSubmit)="invite()">
+    <label class="feld">
+      <span>E-Mail-Adresse</span>
+      <input type="email" formControlName="email" data-testid="invite-email" />
+      @if (form.controls.email.invalid && form.controls.email.touched) {
+        <small class="feld-fehler">Bitte eine gültige E-Mail-Adresse eingeben.</small>
+      }
+      <small class="hinweis">
+        Muss die Adresse des Google-Kontos sein, mit dem sich die Person anmeldet.
+      </small>
+    </label>
 
-  <button type="submit" data-testid="invite-admin">Einladen</button>
-</form>
+    <button type="submit" class="knopf" data-testid="invite-admin">Einladen</button>
+  </form>
+</section>
