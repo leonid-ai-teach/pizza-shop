@@ -1,6 +1,11 @@
 ---
-status: accepted
+status: superseded
+superseded-by: 0003-admin-password-auth.md
 ---
+
+> **Überholt von [ADR 0003](0003-admin-password-auth.md).** Der Admin-Login läuft seit dem
+> Umbau über E-Mail und Passwort; Google OAuth ist vollständig aus der Anwendung entfernt.
+> Was hier steht, beschreibt den früheren Stand und die damalige Begründung.
 
 # Admin-Authentifizierung über Google OAuth mit Einladungs-Allowlist
 

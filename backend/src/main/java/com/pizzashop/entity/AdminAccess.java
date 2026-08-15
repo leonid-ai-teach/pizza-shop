@@ -8,9 +8,9 @@ import jakarta.persistence.Table;
 import java.time.Instant;
 
 /**
- * An email address approved for the admin area. Access is granted by prior invitation
+ * An admin of the shop, identified by email address. Access is granted by prior invitation
  * only — there is no self-registration and no "pending approval" state
- * (docs/adr/0001-google-oauth-admin-auth.md).
+ * (docs/adr/0003-admin-password-auth.md).
  */
 @Entity
 @Table(name = "admin_access")
@@ -26,12 +26,20 @@ public class AdminAccess {
     @Column(name = "approved_by", nullable = false)
     private String approvedBy;
 
+    /**
+     * Null for rows created before the switch away from Google login. Such an admin simply
+     * cannot sign in until a password is set; nothing anywhere invents a default one.
+     */
+    @Column(name = "password_hash")
+    private String passwordHash;
+
     protected AdminAccess() {
     }
 
-    public AdminAccess(String email, String approvedBy) {
+    public AdminAccess(String email, String approvedBy, String passwordHash) {
         this.email = email;
         this.approvedBy = approvedBy;
+        this.passwordHash = passwordHash;
         this.approvedAt = Instant.now();
     }
 
@@ -45,5 +53,13 @@ public class AdminAccess {
 
     public String getApprovedBy() {
         return approvedBy;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 }

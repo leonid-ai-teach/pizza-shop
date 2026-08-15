@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.MediaType;
@@ -33,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@Import(PostgresTestcontainerConfiguration.class)
 @AutoConfigureMockMvc
 @Transactional
 class OrderAdminApiTest {
@@ -60,7 +62,9 @@ class OrderAdminApiTest {
 
     @BeforeEach
     void setUp() {
-        adminAccessRepository.save(new AdminAccess(ADMIN, "bootstrap"));
+        // No password: these tests authenticate through a RequestPostProcessor, not the login
+        // endpoint, so the row only has to exist.
+        adminAccessRepository.save(new AdminAccess(ADMIN, "bootstrap", null));
         Pizza pizza = pizzaRepository.save(
                 new Pizza("Margherita", null, new BigDecimal("7.50"), null, true, 10));
 

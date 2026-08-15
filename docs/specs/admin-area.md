@@ -12,6 +12,12 @@ Build a `/admin` area protected by Google login (OAuth2), where access is grante
 
 1. As an admin, I want to log in to `/admin` using my Google account, so that I don't need a separate shop-specific password.
 2. As an admin, I want to be denied access if my Google account's email isn't on the allowlist, so that only approved staff can reach admin functionality.
+
+> **Note:** Stories 1 and 2 and every mention of Google/OAuth below describe the originally
+> implemented design. Authentication has since been replaced by email + password against the
+> same `AdminAccess` table — see [ADR-0003](../adr/0003-admin-password-auth.md). Everything
+> else in this spec still holds: the invite-only model, the single role, and the absence of a
+> pending state are unchanged.
 3. As an admin, I want any unauthenticated request to an admin API endpoint to be rejected, so that the admin API can't be reached by bypassing the login screen.
 4. As the very first admin, I want my access to be provisioned via an environment variable (`ADMIN_BOOTSTRAP_EMAIL`) or Flyway seed, so that there's no chicken-and-egg problem when no admin yet exists to invite me.
 5. As an existing admin, I want to invite a new admin by entering their email address into an allowlist, so that they can log in the first time already approved, with no pending/unconfirmed state.

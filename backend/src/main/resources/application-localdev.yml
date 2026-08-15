@@ -6,5 +6,8 @@ spring:
 
 pizzashop:
   admin:
-    # Seeds the allowlist so /dev-login has an admin to sign in as.
+    # Known credentials so the admin area can be opened right after "./mvnw spring-boot:run
+    # -Plocaldev" without any setup. Safe to have in the repository: this profile runs against an
+    # in-memory database and is never active in a deployed environment.
     bootstrap-email: ${ADMIN_BOOTSTRAP_EMAIL:dev-admin@pizzashop.local}
+    bootstrap-password: ${ADMIN_BOOTSTRAP_PASSWORD:localdev-passwort}

@@ -1,8 +1,8 @@
 <h1>Admins verwalten</h1>
 
 <p class="anriss">
-  Freigegebene Google-Konten. Neue Admins müssen vorab eingeladen werden, bevor sie sich zum
-  ersten Mal anmelden können.
+  Wer hier steht, kommt in die Verwaltung. Neue Admins müssen vorab angelegt werden; eine
+  Selbstregistrierung gibt es nicht.
 </p>
 
 @if (error()) {
@@ -40,11 +40,73 @@
       @if (form.controls.email.invalid && form.controls.email.touched) {
         <small class="feld-fehler">Bitte eine gültige E-Mail-Adresse eingeben.</small>
       }
+    </label>
+
+    <label class="feld">
+      <span>Erstes Passwort</span>
+      <input
+        type="password"
+        formControlName="password"
+        autocomplete="new-password"
+        data-testid="invite-password"
+      />
+      @if (form.controls.password.invalid && form.controls.password.touched) {
+        <small class="feld-fehler">
+          Mindestens {{ mindestlaenge }} Zeichen.
+        </small>
+      }
       <small class="hinweis">
-        Muss die Adresse des Google-Kontos sein, mit dem sich die Person anmeldet.
+        Gib es der Person persönlich weiter — die Anwendung verschickt keine E-Mails. Sie kann es
+        danach hier selbst ändern.
       </small>
     </label>
 
     <button type="submit" class="knopf" data-testid="invite-admin">Einladen</button>
+  </form>
+</section>
+
+<section class="bogen">
+  <h2>Eigenes Passwort ändern</h2>
+
+  @if (passwordChanged()) {
+    <p class="meldung-erfolg" role="status" data-testid="password-changed">
+      Das Passwort wurde geändert.
+    </p>
+  }
+  @if (passwordError()) {
+    <p class="meldung-fehler" role="alert" data-testid="password-error">{{ passwordError() }}</p>
+  }
+
+  <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+    <label class="feld">
+      <span>Aktuelles Passwort</span>
+      <input
+        type="password"
+        formControlName="currentPassword"
+        autocomplete="current-password"
+        data-testid="current-password"
+      />
+      @if (
+        passwordForm.controls.currentPassword.invalid &&
+        passwordForm.controls.currentPassword.touched
+      ) {
+        <small class="feld-fehler">Bitte das aktuelle Passwort eingeben.</small>
+      }
+    </label>
+
+    <label class="feld">
+      <span>Neues Passwort</span>
+      <input
+        type="password"
+        formControlName="newPassword"
+        autocomplete="new-password"
+        data-testid="new-password"
+      />
+      @if (passwordForm.controls.newPassword.invalid && passwordForm.controls.newPassword.touched) {
+        <small class="feld-fehler">Mindestens {{ mindestlaenge }} Zeichen.</small>
+      }
+    </label>
+
+    <button type="submit" class="knopf" data-testid="change-password">Passwort ändern</button>
   </form>
 </section>

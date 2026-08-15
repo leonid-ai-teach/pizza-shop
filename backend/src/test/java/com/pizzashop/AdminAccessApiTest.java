@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,11 +22,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@Import(PostgresTestcontainerConfiguration.class)
 @AutoConfigureMockMvc
 @Transactional
 class AdminAccessApiTest {
 
     private static final String EXISTING_ADMIN = "chef@pizzashop.de";
+    private static final String VALID_PASSWORD = "ein-gutes-passwort";
 
     @Autowired
     private MockMvc mockMvc;
@@ -35,7 +38,9 @@ class AdminAccessApiTest {
 
     @BeforeEach
     void setUp() {
-        adminAccessRepository.save(new AdminAccess(EXISTING_ADMIN, "bootstrap"));
+        // No password: these tests authenticate through a RequestPostProcessor, not the login
+        // endpoint, so the row only has to exist.
+        adminAccessRepository.save(new AdminAccess(EXISTING_ADMIN, "bootstrap", null));
     }
 
     @Test
@@ -64,7 +69,7 @@ class AdminAccessApiTest {
                         .with(allowlistedAdmin(EXISTING_ADMIN))
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"newhire@pizzashop.de\"}"))
+                        .content("{\"email\":\"newhire@pizzashop.de\",\"password\":\"" + VALID_PASSWORD + "\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.email").value("newhire@pizzashop.de"))
                 .andExpect(jsonPath("$.approvedBy").value(EXISTING_ADMIN));
@@ -78,7 +83,7 @@ class AdminAccessApiTest {
                         .with(allowlistedAdmin(EXISTING_ADMIN))
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"Mixed.Case@Pizzashop.de\"}"))
+                        .content("{\"email\":\"Mixed.Case@Pizzashop.de\",\"password\":\"" + VALID_PASSWORD + "\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.email").value("mixed.case@pizzashop.de"));
     }
@@ -89,7 +94,7 @@ class AdminAccessApiTest {
                         .with(allowlistedAdmin(EXISTING_ADMIN))
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"" + EXISTING_ADMIN + "\"}"))
+                        .content("{\"email\":\"" + EXISTING_ADMIN + "\",\"password\":\"" + VALID_PASSWORD + "\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
     }
@@ -100,9 +105,22 @@ class AdminAccessApiTest {
                         .with(allowlistedAdmin(EXISTING_ADMIN))
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"not-an-email\"}"))
+                        .content("{\"email\":\"not-an-email\",\"password\":\"" + VALID_PASSWORD + "\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
+    }
+
+    @Test
+    void invitingWithATooShortPasswordIsRejected() throws Exception {
+        mockMvc.perform(post("/api/admin/admins")
+                        .with(allowlistedAdmin(EXISTING_ADMIN))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"newhire@pizzashop.de\",\"password\":\"kurz\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
+
+        assertThat(adminAccessRepository.existsById("newhire@pizzashop.de")).isFalse();
     }
 
     @Test
@@ -111,7 +129,7 @@ class AdminAccessApiTest {
                         .with(nonAllowlistedUser("stranger@example.com"))
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"stranger@example.com\"}"))
+                        .content("{\"email\":\"stranger@example.com\",\"password\":\"" + VALID_PASSWORD + "\"}"))
                 .andExpect(status().isForbidden());
 
         assertThat(adminAccessRepository.existsById("stranger@example.com")).isFalse();
@@ -129,7 +147,7 @@ class AdminAccessApiTest {
         mockMvc.perform(post("/api/admin/admins")
                         .with(allowlistedAdmin(EXISTING_ADMIN))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"newhire@pizzashop.de\"}"))
+                        .content("{\"email\":\"newhire@pizzashop.de\",\"password\":\"" + VALID_PASSWORD + "\"}"))
                 .andExpect(status().isForbidden());
     }
 }

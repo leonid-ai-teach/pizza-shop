@@ -2,7 +2,6 @@ import { OrderStatus } from '../core/models/order.model';
 
 export interface CurrentAdmin {
   email: string;
-  name: string | null;
 }
 
 export interface AdminAccessEntry {

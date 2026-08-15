@@ -286,6 +286,15 @@ select {
   margin-bottom: var(--raum-4);
 }
 
+/* Bestaetigungen dieselbe Form, aber im ruhigen zweiten Akzent: sie melden, dass etwas
+   geklappt hat, und sollen den Blick nicht so festhalten wie ein Fehler. */
+.meldung-erfolg {
+  border-left: 3px solid var(--oliv);
+  padding: var(--raum-3) var(--raum-4);
+  background: var(--papier-tief);
+  margin-bottom: var(--raum-4);
+}
+
 fieldset {
   border: 1px solid var(--linie);
   padding: var(--raum-4);

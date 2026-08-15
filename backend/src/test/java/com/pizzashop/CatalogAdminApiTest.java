@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@Import(PostgresTestcontainerConfiguration.class)
 @AutoConfigureMockMvc
 @Transactional
 class CatalogAdminApiTest {
@@ -53,7 +55,9 @@ class CatalogAdminApiTest {
 
     @BeforeEach
     void setUp() {
-        adminAccessRepository.save(new AdminAccess(ADMIN, "bootstrap"));
+        // No password: these tests authenticate through a RequestPostProcessor, not the login
+        // endpoint, so the row only has to exist.
+        adminAccessRepository.save(new AdminAccess(ADMIN, "bootstrap", null));
 
         cheese = toppingRepository.save(new Topping("Extra Käse", null, new BigDecimal("1.00"), true));
         salami = toppingRepository.save(new Topping("Salami", null, new BigDecimal("1.50"), true));

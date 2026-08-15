@@ -16,12 +16,20 @@ import {
 export class AdminApiService {
   private readonly http = inject(HttpClient);
 
+  login(email: string, password: string): Observable<void> {
+    return this.http.post<void>('/api/admin/login', { email, password });
+  }
+
   me(): Observable<CurrentAdmin> {
     return this.http.get<CurrentAdmin>('/api/admin/me');
   }
 
   logout(): Observable<void> {
     return this.http.post<void>('/api/admin/logout', {});
+  }
+
+  changeOwnPassword(currentPassword: string, newPassword: string): Observable<void> {
+    return this.http.put<void>('/api/admin/me/password', { currentPassword, newPassword });
   }
 
   getOrderSummary(): Observable<OrderSummary> {
@@ -78,7 +86,7 @@ export class AdminApiService {
     return this.http.get<AdminAccessEntry[]>('/api/admin/admins');
   }
 
-  inviteAdmin(email: string): Observable<AdminAccessEntry> {
-    return this.http.post<AdminAccessEntry>('/api/admin/admins', { email });
+  inviteAdmin(email: string, password: string): Observable<AdminAccessEntry> {
+    return this.http.post<AdminAccessEntry>('/api/admin/admins', { email, password });
   }
 }

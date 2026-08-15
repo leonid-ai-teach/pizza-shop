@@ -1,8 +1,6 @@
+# Kein datasource-Block: die Verbindungsdaten liefert der PostgreSQL-Testcontainer
+# (siehe PostgresTestcontainerConfiguration).
 spring:
-  datasource:
-    url: jdbc:h2:mem:pizzashop-test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
-    username: sa
-    password: ""
   jpa:
     hibernate:
       ddl-auto: validate

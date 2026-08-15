@@ -19,3 +19,9 @@
   color: var(--tinte-leise);
   font-size: var(--grad-s);
 }
+
+/* Der Knopf schliesst das Blatt ab und traegt deshalb etwas mehr Luft als die Felder
+   untereinander. */
+.knopf {
+  margin-top: var(--raum-4);
+}
