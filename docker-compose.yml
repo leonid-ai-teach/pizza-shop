@@ -1,0 +1,61 @@
+# Der komplette Stack: PostgreSQL, Spring-Boot-Backend, Angular-SPA hinter nginx.
+#
+#   cp .env.example .env   # einmalig, Werte anpassen
+#   docker compose up      # danach http://localhost:8080
+#
+# Nach aussen sichtbar ist ausschliesslich der nginx auf ${APP_PORT}. Backend und Datenbank
+# haengen im internen Compose-Netz und haben bewusst kein "ports:" — die SPA erreicht die API
+# ueber denselben Origin (Reverse Proxy, siehe frontend/nginx.conf).
+#
+# Keine Geheimnisse in dieser Datei: alle Werte kommen ueber ${...} aus der .env.
+
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pizzashop}
+      POSTGRES_USER: ${POSTGRES_USER:-pizzashop}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pizzashop}
+    volumes:
+      # Ab PostgreSQL 18 gehoert der Mount an /var/lib/postgresql, nicht mehr an
+      # /var/lib/postgresql/data: das Image legt die Daten dort in einem Unterverzeichnis
+      # je Hauptversion ab, damit spaetere pg_upgrade-Laeufe nicht ueber die Mount-Grenze
+      # stolpern. Mit dem alten Pfad startet der Container gar nicht erst.
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      # Das Backend validiert beim Start das Schema und laesst Flyway laufen; startet es vor
+      # der Datenbank, bricht es ab. Deshalb wartet es unten auf diesen Healthcheck.
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pizzashop} -d ${POSTGRES_DB:-pizzashop}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-pizzashop}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-pizzashop}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-pizzashop}
+      # Der erste Admin. Ohne beide Werte kann sich niemand anmelden.
+      ADMIN_BOOTSTRAP_EMAIL: ${ADMIN_BOOTSTRAP_EMAIL:-}
+      ADMIN_BOOTSTRAP_PASSWORD: ${ADMIN_BOOTSTRAP_PASSWORD:-}
+      # Die Adresse, unter der der Browser den Stack sieht. Muss zu APP_PORT passen.
+      FRONTEND_URL: ${PUBLIC_URL:-http://localhost:8080}
+      # Hinter dem nginx entscheiden die X-Forwarded-*-Header, wie Spring absolute URLs baut.
+      SERVER_FORWARD_HEADERS_STRATEGY: framework
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "${APP_PORT:-8080}:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  pgdata:

@@ -1,0 +1,8 @@
+# Ohne diese Zeilen wandern die lokalen node_modules (hunderte MB) in den Build-Kontext
+# und ueberschreiben im Image die per "npm ci" fuer Linux installierten Pakete.
+node_modules/
+dist/
+.angular/
+
+.vscode/
+.idea/

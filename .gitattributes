@@ -1,0 +1,5 @@
+# Shell-Skripte laufen in Linux-Containern: mit CRLF scheitert der Shebang mit
+# "no such file or directory". Deshalb hier unabhaengig von core.autocrlf auf LF festnageln.
+*.sh text eol=lf
+mvnw text eol=lf
+Dockerfile text eol=lf

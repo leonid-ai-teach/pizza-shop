@@ -1,0 +1,11 @@
+# Build-Ausgaben und IDE-Kram gehoeren nicht in den Build-Kontext: sie wuerden den
+# Dependency-Layer bei jedem lokalen Build invalidieren.
+target/
+*.class
+
+.classpath
+.project
+.settings/
+.factorypath
+.idea/
+*.iml
