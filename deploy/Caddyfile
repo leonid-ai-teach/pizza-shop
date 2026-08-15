@@ -1,0 +1,27 @@
+# TLS-Terminierung vor dem nginx. Caddy beantragt und erneuert das Zertifikat selbst, sobald
+# die Domain auf diese Maschine zeigt und Port 80 und 443 von aussen erreichbar sind.
+#
+# Die Werte kommen aus der .env (siehe .env.prod.example und docker-compose.prod.yml).
+{
+	email {$ACME_EMAIL}
+}
+
+{$PUBLIC_DOMAIN} {
+	encode zstd gzip
+
+	header {
+		# Ein halbes Jahr HTTPS erzwingen. Caddy leitet http zwar ohnehin um, aber erst nach
+		# einem ungeschuetzten ersten Request.
+		Strict-Transport-Security "max-age=15552000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		# Die Anwendung wird nirgends eingebettet; das schliesst Clickjacking aus.
+		Content-Security-Policy "frame-ancestors 'none'"
+		# Verraet sonst die Caddy-Version.
+		-Server
+	}
+
+	# Dahinter liegt der komplette Stack: der nginx liefert die SPA aus und reicht /api ans
+	# Backend weiter. Caddy setzt X-Forwarded-Proto/-For selbst, der nginx gibt sie durch.
+	reverse_proxy frontend:80
+}

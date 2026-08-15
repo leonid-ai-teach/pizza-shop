@@ -1,0 +1,144 @@
+# Testen, Images bauen, ausrollen.
+#
+# Getestet wird bei jedem Push und jedem Pull Request. Bis auf den Server geht es nur vom
+# Hauptzweig aus — und nur, wenn beide Testlaeufe gruen sind.
+#
+# Was vorher eingerichtet sein muss (Secrets, Deploy-Schluessel, Server): docs/deployment.md
+name: CI/CD
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+# Zwei Deployments gleichzeitig auf dieselbe Maschine waeren ein Rennen, deshalb pro Zweig
+# nur ein Lauf. Abbrechen darf ein neuer Push aber nur Pull-Request-Pruefungen — ein
+# halb abgebrochenes Deployment will niemand.
+concurrency:
+  group: ci-cd-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  backend-tests:
+    name: Backend-Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      # Die Tests bringen ihre Datenbank selbst mit: Testcontainers startet ein echtes
+      # PostgreSQL. Der Docker-Daemon der Runner genuegt dafuer, es ist nichts einzurichten.
+      - name: mvn verify
+        working-directory: backend
+        run: ./mvnw -B --no-transfer-progress verify
+
+  frontend-tests:
+    name: Frontend-Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: npm ci
+        working-directory: frontend
+        run: npm ci
+
+      # Laeuft unter vitest mit jsdom, es braucht also keinen Browser auf dem Runner.
+      - name: npm test
+        working-directory: frontend
+        run: npm test -- --watch=false
+
+  build:
+    name: Images bauen (${{ matrix.component }})
+    needs: [backend-tests, frontend-tests]
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+    # ARM, weil die Zielmaschine ARM ist (Ampere A1 bei Oracle). Fuer oeffentliche
+    # Repositories sind diese Runner kostenlos; in einem privaten kosten sie Minuten. Dann
+    # entweder das Repository oeffentlich machen oder hier auf ubuntu-latest wechseln und
+    # docker/setup-qemu-action ergaenzen — das emuliert ARM und dauert ein Vielfaches.
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        component: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v7
+
+      # ghcr.io nimmt nur Kleinbuchstaben, Kontonamen duerfen aber grosse enthalten.
+      - name: Bildnamen bestimmen
+        id: image
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}-${{ matrix.component }}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v4
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          # Kein eigenes Token noetig: das Repository darf in seine eigene Registry schreiben.
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v7
+        with:
+          context: ./${{ matrix.component }}
+          platforms: linux/arm64
+          push: true
+          # :latest zieht der Server, der Commit-Tag bleibt fuer den Weg zurueck.
+          tags: |
+            ${{ steps.image.outputs.name }}:latest
+            ${{ steps.image.outputs.name }}:${{ github.sha }}
+          # Spart beim naechsten Lauf das Aufloesen der Maven- und npm-Abhaengigkeiten.
+          cache-from: type=gha,scope=${{ matrix.component }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.component }}
+
+  deploy:
+    name: Ausrollen
+    needs: build
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: SSH vorbereiten
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          # Bewusst kein ssh-keyscan an dieser Stelle: der Fingerabdruck gehoert in die
+          # Secrets. Sonst vertraut der Workflow jedem, der gerade unter der Adresse antwortet.
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      # Die .env wird nie angefasst — sie enthaelt die Geheimnisse und liegt nur auf dem
+      # Server. Uebertragen werden nur die Dateien, die im Repository stehen.
+      - name: Konfiguration auf den Server kopieren
+        env:
+          TARGET: ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}
+        run: |
+          ssh -i ~/.ssh/id_deploy "$TARGET" "mkdir -p /opt/pizza-shop/deploy"
+          scp -i ~/.ssh/id_deploy \
+            docker-compose.yml docker-compose.prod.yml docker-compose.registry.yml \
+            "$TARGET:/opt/pizza-shop/"
+          scp -i ~/.ssh/id_deploy \
+            deploy/Caddyfile deploy/backup.sh deploy/remote-update.sh \
+            "$TARGET:/opt/pizza-shop/deploy/"
+          ssh -i ~/.ssh/id_deploy "$TARGET" "chmod +x /opt/pizza-shop/deploy/*.sh"
+
+      - name: Neu starten und pruefen
+        env:
+          TARGET: ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}
+        run: ssh -i ~/.ssh/id_deploy "$TARGET" "/opt/pizza-shop/deploy/remote-update.sh"

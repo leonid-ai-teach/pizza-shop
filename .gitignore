@@ -23,3 +23,6 @@ dist/
 
 # Env
 .env
+
+# Datenbanksicherungen (deploy/backup.sh)
+backups/

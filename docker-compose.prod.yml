@@ -1,0 +1,53 @@
+# Aufsatz auf docker-compose.yml fuer den Betrieb im Netz. Zusammen gestartet:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# Unterschied zum lokalen Stack: davor haengt ein Caddy, der TLS terminiert und die
+# Zertifikate selbst bei Let's Encrypt holt. Nur er veroeffentlicht noch Ports; der nginx
+# ist ausschliesslich ueber das interne Compose-Netz erreichbar.
+#
+# Braucht Compose >= 2.24 wegen "!override". Anleitung: docs/deployment.md
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      # Die ausgestellten Zertifikate. Ohne dieses Volume holt Caddy nach jedem Neustart
+      # neue und laeuft irgendwann in das Rate-Limit von Let's Encrypt.
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      PUBLIC_DOMAIN: ${PUBLIC_DOMAIN:?PUBLIC_DOMAIN fehlt in der .env}
+      ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL fehlt in der .env}
+    depends_on:
+      - frontend
+    restart: unless-stopped
+
+  backend:
+    environment:
+      # Die oeffentliche Adresse ergibt sich hier aus der Domain — es gibt keinen Port und kein
+      # http mehr, also braucht es dafuer auch keinen zweiten Wert in der .env, der zur Domain
+      # passen muesste.
+      FRONTEND_URL: https://${PUBLIC_DOMAIN}
+      # Abweichend vom lokalen Stack: "native" statt "framework". Der Unterschied zaehlt genau
+      # hier, wo TLS vor der Anwendung endet — das Sitzungscookie erzeugt Tomcat selbst, und
+      # es bekommt sein "Secure"-Flag nur, wenn schon der Container den Request als sicher
+      # ansieht. Springs ForwardedHeaderFilter ("framework") setzt zu spaet an: er richtet die
+      # Sicht der Anwendung gerade, das JSESSIONID-Cookie ist dann aber schon geschrieben.
+      # Tomcats RemoteIpValve vertraut dabei nur privaten Absenderadressen — der Caddy im
+      # Compose-Netz ist eine.
+      SERVER_FORWARD_HEADERS_STRATEGY: native
+
+  frontend:
+    # Kein Host-Port mehr: von aussen kommt man nur ueber den Caddy herein. Die leere Liste
+    # ersetzt die aus docker-compose.yml — ohne "!override" wuerden Compose-Dateien ihre
+    # Port-Listen zusammenhaengen statt einander abzuloesen.
+    ports: !override []
+
+volumes:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,23 @@
+# Dritter Aufsatz, sobald GitHub Actions die Images baut (.github/workflows/ci-cd.yml):
+# statt auf der Maschine zu bauen, zieht sie die fertigen Images aus der GitHub Container
+# Registry. Aktiviert wird er ueber COMPOSE_FILE in der .env:
+#
+#   COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml:docker-compose.registry.yml
+#
+# Danach genuegt auf dem Server ein blankes "docker compose up -d". Anleitung und die noetigen
+# Bildnamen: docs/deployment.md
+
+services:
+  backend:
+    # "!reset" nimmt die build-Anweisung aus docker-compose.yml zurueck. Bliebe sie stehen,
+    # wuerde ein "up --build" auf der Maschine doch wieder Maven anwerfen.
+    build: !reset null
+    image: ${BACKEND_IMAGE:?BACKEND_IMAGE fehlt in der .env}
+    # Der Tag lautet :latest und wandert bei jedem Ausrollen weiter — ohne "always" bliebe
+    # das einmal geladene Image liegen.
+    pull_policy: always
+
+  frontend:
+    build: !reset null
+    image: ${FRONTEND_IMAGE:?FRONTEND_IMAGE fehlt in der .env}
+    pull_policy: always

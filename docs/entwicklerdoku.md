@@ -35,7 +35,7 @@ einem Mapper aus `mapper/`.
 | `entity/` | JPA-Entitäten und Enums |
 | `dto/` | Request-/Response-Records |
 | `mapper/` | Entität → DTO |
-| `security/` | `SecurityConfig`, Google-OIDC-Anbindung, Allowlist-Prüfung, Dev-Login |
+| `security/` | `SecurityConfig`, Anmeldung, Admin-Benutzer aus `admin_access` |
 | `exception/` | `ApiException`-Hierarchie und `GlobalExceptionHandler` |
 | `config/` | `AdminBootstrapRunner` (erster Admin beim Start) |
 
@@ -111,8 +111,10 @@ Fehlercodes: `VALIDATION_ERROR` (400), `NOT_FOUND` (404), `CONCURRENT_MODIFICATI
 
 | Methode | Pfad | Zweck |
 | :--- | :--- | :--- |
+| `POST` | `/api/admin/login` | Anmeldung mit E-Mail und Passwort — **der einzige offene Pfad hier** |
 | `GET` | `/api/admin/me` | Identität der aktuellen Sitzung; nutzt das Frontend als Guard |
-| `GET` `POST` | `/api/admin/admins` | Allowlist lesen / neue Admin einladen |
+| `PUT` | `/api/admin/me/password` | eigenes Passwort ändern |
+| `GET` `POST` | `/api/admin/admins` | Admins lesen / neuen Admin einladen |
 | `GET` | `/api/admin/orders` | Bestellungen, optional `?status=` |
 | `GET` | `/api/admin/orders/summary` | Zähler für das Dashboard |
 | `GET` | `/api/admin/orders/{id}` | Bestelldetails |
@@ -137,18 +139,41 @@ also entfernt, nicht ignoriert.
 
 ### Anmeldung und Freigabe
 
-Der Admin-Bereich nutzt Google OAuth2/OIDC; eigene Passwörter gibt es nicht
-([ADR-0001](adr/0001-google-oauth-admin-auth.md)). Zugang bekommt nur, wessen
-E-Mail-Adresse **vorab** in `admin_access` steht — `AllowlistOidcUserService` weist jedes
-andere Konto direkt beim Login ab. Einen Zwischenzustand „wartet auf Freigabe" gibt es
-nicht.
+Der Admin-Bereich meldet mit E-Mail und Passwort an: `POST /api/admin/login` prüft die Daten und
+legt eine Server-Session an ([ADR-0003](adr/0003-admin-password-auth.md), das
+[ADR-0001](adr/0001-google-oauth-admin-auth.md) und dessen Google-Login ablöst).
+
+Die Tabelle `admin_access` ist zugleich Einladungsliste **und** Benutzertabelle — es gibt nur
+eine Rolle, eine eigene `User`-Entität trüge keine zusätzliche Information.
+`AdminUserDetailsService` liest sie aus; wer nicht darinsteht, kommt nicht hinein. Einen
+Zwischenzustand „wartet auf Freigabe" gibt es nicht, und eine Selbstregistrierung ebenso wenig.
+
+Gehasht wird mit Springs `DelegatingPasswordEncoder`, der das Verfahren im Hash vermerkt
+(`{bcrypt}$2a$10$…`). Ein späterer Wechsel entwertet damit nicht alle Passwörter auf einmal.
+
+**Eine Zeile ohne `password_hash` kann sich nicht anmelden.** Das betrifft Bestände aus der
+Google-Zeit und ist Absicht: An keiner Stelle entsteht ein Standardpasswort.
+`AdminUserDetailsService` weist solche Zeilen ab wie eine unbekannte Adresse.
 
 E-Mail-Adressen werden beim Speichern und Vergleichen kleingeschrieben
-(`AdminAccessService.normalize`), damit abweichende Schreibweisen des Providers niemanden
-aussperren.
+(`AdminAccessService.normalize`), damit abweichende Schreibweisen niemanden aussperren — die
+Anmeldung ist dadurch unempfindlich gegen Groß- und Kleinschreibung.
 
-Den ersten Admin legt `AdminBootstrapRunner` aus `ADMIN_BOOTSTRAP_EMAIL` an — ohne ihn
-könnte niemand die erste Einladung aussprechen.
+Den ersten Admin legt `AdminBootstrapRunner` aus `ADMIN_BOOTSTRAP_EMAIL` **und**
+`ADMIN_BOOTSTRAP_PASSWORD` an — ohne ihn könnte niemand die erste Einladung aussprechen. Fehlt
+einer der beiden Werte, passiert nichts und es wird gewarnt. Ein bereits gesetztes Passwort
+wird nie überschrieben, sonst würde jeder Neustart eine bewusste Änderung zurückdrehen — was
+das im Docker-Betrieb bedeutet, steht unter
+[`ADMIN_BOOTSTRAP_PASSWORD` gilt nur beim Anlegen](#admin_bootstrap_password-gilt-nur-beim-anlegen).
+
+Neue Admins legt ein bestehender Admin unter `/admin/admins` samt erstem Passwort an und gibt
+es außerhalb der Anwendung weiter — es gibt keinen Mailversand. Die eingeladene Person ändert
+es danach selbst über `PUT /api/admin/me/password`. Fremde Passwörter kann niemand setzen, was
+zugleich heißt: Für ein vergessenes Passwort gibt es keinen Self-Service, im Zweifel bleibt der
+Weg über `ADMIN_BOOTSTRAP_*` oder die Datenbank.
+
+Was fehlt: eine Sperre nach zu vielen Fehlversuchen. Solange die Anwendung nur lokal läuft, ist
+das verschmerzbar; vor einem öffentlichen Deployment gehört sie nachgezogen.
 
 ### CSRF
 
@@ -158,7 +183,10 @@ setzt — genau das Format, das Angulars `HttpClient` von sich aus als `X-XSRF-T
 zurückschickt. Es ist also kein eigener Interceptor nötig.
 
 Die öffentlichen Endpunkte sind bewusst ausgenommen: Sie tragen keine Sitzungsrechte, die
-ein Angreifer missbrauchen könnte.
+ein Angreifer missbrauchen könnte. Dasselbe gilt für `/api/admin/login` — der Aufruf läuft,
+bevor eine Session existiert, es gibt also keine Autorität, auf der ein fremdes Formular
+mitreiten könnte. Ein Token dort zu verlangen hieße, ihn vor der Anmeldung mit einem
+Extra-Request zu besorgen.
 
 ### Bestellbestätigung über Token
 
@@ -179,14 +207,17 @@ einen `VALIDATION_ERROR`.
 Bestellung gleichzeitig, gewinnt nicht mehr stillschweigend der letzte Schreibvorgang —
 der zweite bekommt `409 CONCURRENT_MODIFICATION`.
 
-### Dev-Login
+### Sitzung beim Anmelden
 
-`DevLoginController` meldet unter `/dev-login` ohne Google als Bootstrap-Admin an. Die
-Klasse ist mit `@Profile("localdev")` annotiert und existiert in anderen Profilen gar
-nicht. Sie erzeugt bewusst denselben `OidcUser` wie ein echter Google-Login, damit es
-keinen zweiten Authentifizierungspfad gibt, der auseinanderlaufen kann.
+`AdminLoginController` authentifiziert von Hand über den `AuthenticationManager`, statt Spring
+Securitys Formular-Filter zu benutzen — die SPA braucht einen Statuscode, keinen HTML-Redirect.
+Das hat eine Konsequenz, die leicht übersehen wird: Der Filter bringt seine
+`SessionAuthenticationStrategy` mit, der Controller nicht. Deshalb ruft er selbst
+`request.changeSessionId()` auf. Ohne das überlebte eine vom Angreifer untergeschobene
+Session-ID den Rechtewechsel (Session Fixation).
 
-**Niemals in einer deployten Umgebung aktivieren.**
+Ob die E-Mail unbekannt oder das Passwort falsch war, unterscheidet die Antwort bewusst nicht:
+Sonst verriete das Anmeldeformular, welche Adressen Admin-Konten sind.
 
 ---
 
@@ -198,9 +229,10 @@ Flyway, aufgeteilt in zwei Verzeichnisse unter `backend/src/main/resources/db/mi
 | :--- | :--- | :--- |
 | `V1__init_schema.sql` | `schema/` | Tabellen und Bestellnummern-Sequenz |
 | `V2__seed_data.sql` | `seed/` | Beispiel-Pizzen und -Toppings |
-| `V3__admin_access.sql` | `schema/` | Allowlist-Tabelle |
+| `V3__admin_access.sql` | `schema/` | Admin-Tabelle |
 | `V4__order_optimistic_locking.sql` | `schema/` | `version`-Spalte |
 | `V5__order_public_token.sql` | `schema/` | `public_token`-Spalte |
+| `V6__admin_password.sql` | `schema/` | `password_hash`-Spalte |
 
 > **Stolperfalle:** Die Versionsnummern sind über beide Ordner verschränkt. Tests laden
 > nur `classpath:db/migration/schema`, dort fehlt also V2. Das ist beabsichtigt — Tests
@@ -227,17 +259,34 @@ Antwort und gespeicherter Zustand raus. Repositories und Services werden in den
 Integrationstests **nicht** gemockt.
 
 Admin-Tests simulieren Sitzungen über `AdminTestSupport.allowlistedAdmin(...)` bzw.
-`nonAllowlistedUser(...)`; für schreibende Zugriffe ist zusätzlich `.with(csrf())` nötig.
+`nonAllowlistedUser(...)`; für schreibende Zugriffe ist zusätzlich `.with(csrf())` nötig. Die
+Anmeldung selbst — Passwortprüfung, Sessionaufbau, Passwortwechsel — deckt `AdminLoginApiTest`
+ab, der als einziger tatsächlich über `/api/admin/login` geht.
 
 ```bash
 cd backend  && ./mvnw test -Dtest=OrderAdminApiTest   # einzelne Klasse
 cd frontend && npm test -- --watch=false
 ```
 
-Die Backend-Tests laufen gegen H2 im PostgreSQL-Modus, nicht gegen echtes PostgreSQL via
-Testcontainers wie in den Specs vorgesehen — auf der Entwicklungsmaschine war kein Docker
-verfügbar. Damit bleiben PostgreSQL-spezifische Eigenheiten ungetestet; siehe
-[offene Punkte](#offene-punkte).
+### Die Testdatenbank
+
+Die Backend-Tests laufen gegen ein echtes PostgreSQL, das Testcontainers startet — **ein
+laufender Docker-Daemon ist damit Voraussetzung.** Eine In-Memory-Datenbank würde genau die
+Dinge nicht prüfen, an denen dieses Modell hängt: die Bestellnummern-Sequenz, `GENERATED BY
+DEFAULT AS IDENTITY` und das Verhalten von `NUMERIC` bei der Preisberechnung.
+
+Der Container steckt in `PostgresTestcontainerConfiguration`, die jede Integrationstestklasse
+per `@Import` einbindet. Weil dadurch alle Klassen dieselbe Kontext-Konfiguration tragen,
+cached Spring **einen** Kontext und startet **einen** Container für den gesamten Lauf — der
+Aufschlag beträgt rund zwei Sekunden, nicht zwei Sekunden pro Klasse.
+
+Dass der Container über den ganzen Lauf lebt, ist unkritisch: alle Integrationstests sind
+`@Transactional` und rollen ihre Daten zurück. Die einzige Ausnahme ist die Sequenz
+`order_number_seq`, denn Sequenzen kennen kein Rollback. Die Tests prüfen Bestellnummern
+deshalb bewusst relativ (`>= 100000`, monoton steigend) und nie auf einen absoluten Wert —
+wer das ändert, macht die Tests von der Ausführungsreihenfolge abhängig.
+
+Die Image-Version ist absichtlich dieselbe wie in `docker-compose.yml`.
 
 ---
 
@@ -249,34 +298,96 @@ Alles über Umgebungsvariablen, keine Geheimnisse im Code. Vorlage:
 | Variable | Zweck |
 | :--- | :--- |
 | `SPRING_DATASOURCE_URL` / `_USERNAME` / `_PASSWORD` | Datenbankzugang |
-| `ADMIN_BOOTSTRAP_EMAIL` | erster freigeschalteter Admin |
-| `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID` | Google-Client-ID |
-| `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET` | Google-Secret |
-| `FRONTEND_URL` | Origin der SPA; steuert CORS und Redirects nach dem Login |
+| `ADMIN_BOOTSTRAP_EMAIL` | erster Admin |
+| `ADMIN_BOOTSTRAP_PASSWORD` | dessen Passwort — greift **nur beim Anlegen**, siehe unten |
+| `FRONTEND_URL` | Origin der SPA; steuert CORS |
 
-Ohne Google-Credentials startet die Anwendung trotzdem — die Google-Anmeldung wird dann
-übersprungen und eine Warnung geloggt. Eine leere Registrierung in `application.yml` würde
-den Start dagegen mit „client id must not be empty" abbrechen; deshalb steht dort bewusst
-kein `registration`-Block.
+Drei weitere Variablen liest ausschließlich `docker-compose.yml` und reicht sie passend an
+die Container weiter:
+
+| Variable | Zweck |
+| :--- | :--- |
+| `POSTGRES_DB` / `_USER` / `_PASSWORD` | Datenbank im Stack; compose baut daraus die `SPRING_DATASOURCE_*` |
+| `APP_PORT` | Host-Port des nginx |
+| `PUBLIC_URL` | Adresse, unter der der Browser den Stack sieht; wird zu `FRONTEND_URL` — muss zu `APP_PORT` passen |
+
+Fehlt eines der beiden `ADMIN_BOOTSTRAP_*`, startet die Anwendung trotzdem, legt aber keinen
+Admin an und warnt — dann kommt niemand in die Verwaltung. Das Profil `localdev` bringt für
+beide eigene Vorgaben mit (`dev-admin@pizzashop.local` / `localdev-passwort`), damit der
+Docker-freie Start ohne Konfiguration auskommt.
+
+### `ADMIN_BOOTSTRAP_PASSWORD` gilt nur beim Anlegen
+
+Die häufigste Stolperfalle im Docker-Betrieb: Man kommt mit dem Passwort aus der `.env` nicht
+mehr hinein.
+
+`AdminBootstrapRunner` legt die Zeile an oder ergänzt einen fehlenden Hash — einen
+**vorhandenen** Hash überschreibt er nie (`AdminAccessService.ensureBootstrapAdmin`). Sonst
+drehte jeder Neustart eine bewusste Passwortänderung zurück, und ein Admin könnte sein Passwort
+gar nicht dauerhaft ändern.
+
+Zusammen mit dem Volume `pizza-shop_pgdata` heißt das: Wer sein Passwort einmal über
+`PUT /api/admin/me/password` geändert hat, meldet sich fortan mit dem neuen an — auch nach
+`docker compose up --build`, denn der Build erneuert die Images, nicht die Datenbank. Der Wert
+in der `.env` ist ab diesem Moment historisch. `docker compose logs backend` zeigt trotzdem
+weiterhin `Bootstrap admin ensured for …`; die Zeile bestätigt nur, dass der Admin existiert,
+nicht welches Passwort gilt.
+
+Zurück auf den `.env`-Wert, ohne Bestelldaten zu verlieren:
+
+```bash
+docker compose exec -T db psql -U pizzashop -d pizzashop \
+  -c "UPDATE admin_access SET password_hash = NULL WHERE email = 'DEINE-ADRESSE';"
+docker compose restart backend
+```
+
+Genau dafür ist die Spalte nullable: Eine Zeile ohne Hash kann sich nicht anmelden, es entsteht
+also nie ein Standardpasswort, und der nächste Start repariert sie aus der Umgebung. Ein
+Passwort direkt per SQL zu setzen geht ebenfalls, verlangt aber einen `{bcrypt}`-Hash im
+Format des `DelegatingPasswordEncoder` — der Umweg über `NULL` ist einfacher und weniger
+fehleranfällig.
 
 ### Gegen echtes PostgreSQL fahren
 
 Ohne `-Plocaldev` starten und die drei `SPRING_DATASOURCE_*`-Variablen setzen. Flyway legt
 das Schema beim ersten Start selbst an.
 
-### Google OAuth einrichten
+### Der Docker-Stack
 
-In der Google Cloud Console unter *APIs & Services → Credentials* eine OAuth-Client-ID vom
-Typ *Web application* erzeugen und als Redirect-URI **den Origin eintragen, den der
-Browser sieht** — nicht den Backend-Port:
+`docker compose up` startet PostgreSQL, das Backend und einen nginx, der die gebaute SPA
+ausliefert. Beide Anwendungen entstehen in Multi-Stage-Builds (Maven → JRE bzw. Node → nginx).
 
-- lokal: `http://localhost:4200/login/oauth2/code/google`
-- produktiv (SPA und API auf einem Origin): `https://<domain>/login/oauth2/code/google`
+Veröffentlicht wird ausschließlich der nginx auf `${APP_PORT}`; Backend und Datenbank haben
+bewusst kein `ports:` und sind nur im Compose-Netz erreichbar. Der nginx reicht `/api` ans
+Backend durch, sodass SPA und API auf **einem** Origin liegen. Das räumt zwei Reibungspunkte
+weg: CORS entfällt, und das `XSRF-TOKEN`-Cookie braucht keine Sonderregel.
 
-Im lokalen Setup läuft der OAuth-Verkehr über den Angular-Dev-Server-Proxy
-(`frontend/proxy.conf.json`), der den `Host`-Header nicht umschreibt. Spring bildet die
-Callback-URL deshalb gegen `:4200`, nicht gegen `:8080`. Ein auf `:8080` registrierter
-Eintrag führt zu `redirect_uri_mismatch`.
+Zwei Details sind kein Zufall:
+
+- `proxy_set_header Host $http_host` in `frontend/nginx.conf` — nicht `$host`. `$host` verwirft
+  den Port, Spring würde absolute URLs dann gegen `http://localhost/` statt
+  `http://localhost:8080/` bilden.
+- Das Volume in `docker-compose.yml` hängt an `/var/lib/postgresql`, **nicht** an
+  `/var/lib/postgresql/data`. Seit PostgreSQL 18 legt das Image die Daten in einem
+  Unterverzeichnis je Hauptversion ab, damit spätere `pg_upgrade`-Läufe nicht über die
+  Mount-Grenze stolpern; mit dem alten Pfad startet der Container gar nicht erst.
+
+### Betrieb im Netz
+
+`docker-compose.prod.yml` legt einen [Caddy](https://caddyserver.com/) davor, der TLS
+terminiert und die Zertifikate selbst besorgt; der nginx verliert dabei seinen Host-Port.
+Anleitung: [`deployment.md`](deployment.md).
+
+Damit endet TLS vor der Anwendung — und daran hängt ein Detail, das leicht übersehen wird:
+
+- `frontend/nginx.conf` reicht ein vorhandenes `X-Forwarded-Proto` unverändert weiter (`map`
+  auf `$forwarded_proto`) statt `$scheme` einzusetzen. Sonst käme beim Backend `http` an,
+  obwohl der Browser `https` gesprochen hat.
+- Der Betrieb hinter dem Caddy schaltet auf `SERVER_FORWARD_HEADERS_STRATEGY=native` um. Mit
+  `framework` bleibt das `JSESSIONID`-Cookie **ohne** `Secure`-Flag: Springs
+  `ForwardedHeaderFilter` richtet nur die Sicht der Anwendung, das Sitzungscookie erzeugt aber
+  Tomcat, und der entscheidet nach seiner eigenen. `native` setzt schon dort an
+  (`RemoteIpValve`), womit beide Cookies — `JSESSIONID` und `XSRF-TOKEN` — `Secure` tragen.
 
 ---
 
@@ -286,11 +397,10 @@ Bewusst offen gelassen oder durch die Entwicklungsumgebung erzwungen:
 
 | Punkt | Hintergrund |
 | :--- | :--- |
-| **Docker / `docker-compose.yml`** | Master-Prompt §19 fordert einen Ein-Kommando-Start. Nicht umgesetzt, auf der Maschine war kein Docker installiert. |
-| **Echter Google-Login ungetestet** | Nur der `dev-login`-Bypass wurde im Browser durchgespielt. Der eigentliche OAuth-Flow braucht echte Credentials. |
-| **Tests gegen H2 statt Testcontainers** | Beide Specs verlangen echtes PostgreSQL. Ohne Docker nicht möglich; PostgreSQL-spezifisches Verhalten bleibt daher ungeprüft. |
+| **Keine Sperre nach Fehlversuchen** | Das Anmeldeformular lässt sich beliebig oft durchprobieren. Solange die Anwendung nur lokal läuft, verschmerzbar — vor einem öffentlichen Deployment nachziehen ([ADR-0003](adr/0003-admin-password-auth.md)). |
+| **Kein Passwort-Reset** | Wer sein Passwort vergisst, kommt nur über [`ADMIN_BOOTSTRAP_*` bzw. die Datenbank](#admin_bootstrap_password-gilt-nur-beim-anlegen) zurück; es gibt keinen Mailversand, über den ein Reset laufen könnte. |
 | **Seed-Daten nicht vom echten Menü** | pizzapazzia.de rendert clientseitig, der Inhalt war nicht abrufbar. |
-| **Fünf Komponenten ohne Test** | `menu`, `order-confirmation`, `admin-shell`, `admin-login`, `admin-toppings`. Die Abläufe wurden manuell im Browser geprüft, aber nicht automatisiert abgesichert. |
+| **Vier Komponenten ohne Test** | `menu`, `order-confirmation`, `admin-shell`, `admin-toppings`. Die Abläufe wurden manuell im Browser geprüft, aber nicht automatisiert abgesichert. |
 | **Kein automatisierter E2E-Test** | Master-Prompt Phase 7. Der Bestellablauf wurde per Playwright nur manuell verifiziert. |
 | **Admin-Entzug fehlt** | Nur das Einladen ist umgesetzt; das Entfernen einer Freigabe war in [`specs/admin-area.md`](specs/admin-area.md) ausdrücklich außerhalb des Umfangs. |
 
