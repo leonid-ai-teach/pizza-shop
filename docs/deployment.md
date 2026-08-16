@@ -25,7 +25,7 @@ Repository-Namen, falls er anders heißt.
 | Oracle-Konsole | https://cloud.oracle.com/ |
 | Instanz anlegen | https://cloud.oracle.com/compute/instances/create |
 | Instanzen ansehen (IP ablesen) | https://cloud.oracle.com/compute/instances |
-| Netzwerke → Security Lists | https://cloud.oracle.com/networking/vcns |
+| Netzwerke: VCN-Assistent und Security Lists | https://cloud.oracle.com/networking/vcns |
 | Object Storage (für Sicherungen) | https://cloud.oracle.com/object-storage/buckets |
 | Was Always Free genau umfasst | https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm |
 | Neues GitHub-Repository | https://github.com/new |
@@ -140,7 +140,20 @@ wenn die Gäste hier bestellen.
 | OCPUs / Memory | **2 / 12 GB** |
 | Boot volume | Vorgabe genügt; bis 200 GB sind frei |
 | SSH key | *Paste public key* — der Inhalt aus der Zwischenablage von Schritt 1 |
+| Networking → Subnet | **Select existing subnet** und darin das öffentliche wählen („Public Subnet-…") — **kein** neues anlegen, das wird privat |
 | Public IPv4 | zuweisen lassen |
+
+> **„You must select a public subnet to assign a public IPv4 address."** Dann steht im
+> Netzwerk-Abschnitt ein privates Subnetz. Ob ein Subnetz öffentlich ist, entscheidet sich beim
+> Anlegen und lässt sich nachträglich nicht ändern — es braucht also ein anderes. Am schnellsten
+> in einem **neuen Tab** (damit das halb ausgefüllte Formular erhalten bleibt):
+> https://cloud.oracle.com/networking/vcns → *Start VCN Wizard* → **Create VCN with Internet
+> Connectivity** → Namen vergeben (z. B. `pizza-vcn`), alle Vorgaben lassen → *Next* → *Create*.
+> Bei *IPv4 CIDR Blocks* die Vorgaben übernehmen: `10.0.0.0/16` für die VCN, `10.0.0.0/24` und
+> `10.0.1.0/24` für die beiden Subnetze. Das ist reine Innen-Adressierung; die öffentliche IP
+> kommt vom Internet Gateway.
+> Das legt VCN, Internet Gateway, ein öffentliches und ein privates Subnetz samt Routing an.
+> Zurück im Formular dann diese VCN und darin `Public Subnet-pizza-vcn` wählen.
 
 > **2 OCPU / 12 GB, nicht mehr.** Oracle hat das Always-Free-Kontingent zum 15.06.2026 von
 > 4/24 halbiert und terminiert ab dem 18.08.2026 Instanzen, die darüber liegen. Nachzulesen in
@@ -148,8 +161,26 @@ wenn die Gäste hier bestellen.
 > („equivalent to 2 OCPUs and 12 GB of memory"). Für diesen Stack reicht das mit großem Abstand
 > (PostgreSQL ~256 MB, JVM ~512 MB).
 
+> **Die Kostenschätzung zeigt etwas an (z. B. „Boot volume €1.85/month") — trotzdem ist es
+> gratis.** Der Schätzer rechnet immer mit Listenpreisen und kennt das Always-Free-Kontingent
+> nicht. Solange beim Shape *Always Free eligible* steht und du unter 200 GB Block Storage
+> bleibst, wird nichts berechnet; ein nicht auf Pay As You Go hochgestuftes Konto kann gar
+> nichts abbuchen. Nachsehen lässt sich das später unter
+> https://cloud.oracle.com/usage/costanalysis — dort muss 0 stehen.
+
 **„Out of host capacity"** ist bei der ARM-Shape normal und kein Fehler. Dann eine andere
 Availability Domain wählen oder es zu einer anderen Tageszeit erneut versuchen.
+
+> **In stark nachgefragten Regionen (Frankfurt gehört dazu) kann das tagelang so bleiben —
+> in allen drei ADs gleichzeitig, auch bei kleineren Zuschnitten.** Ein einmaliger Klick auf
+> „Create" trifft ein Fenster, das oft nur Sekunden offen ist, praktisch nie. Wer durchhalten
+> will, braucht eine Schleife, die im Sekunden- bis Minutentakt neu versucht — von Hand im
+> Formular ist das nicht zu schaffen. Drei Auswege, wenn es zäh wird: auf Pay As You Go
+> hochstufen (Always Free bleibt kostenlos, zahlende Anfragen werden aber bevorzugt bedient),
+> ein neues Konto mit anderer Heimatregion anlegen (nicht nachträglich änderbar, siehe
+> [Managing Regions](https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/managingregions.htm)),
+> oder ganz auf einen anderen Anbieter ausweichen — dann greift der Abschnitt „Warum diese
+> Variante" weiter unten.
 
 Die öffentliche IP steht danach in der Instanzenliste → **https://cloud.oracle.com/compute/instances**
 
@@ -162,8 +193,9 @@ Die öffentliche IP steht danach in der Instanzenliste → **https://cloud.oracl
 
 Zwei Hürden, beide müssen fallen — das ist die häufigste Ursache für „die Seite lädt nicht".
 
-**a) In der Cloud:** **https://cloud.oracle.com/networking/vcns** → das VCN anklicken →
-*Security Lists* → *Default Security List* → *Add Ingress Rules*. Zweimal anlegen:
+**a) In der Cloud:** **https://cloud.oracle.com/networking/vcns** → das VCN anklicken, in dem
+die Maschine hängt → *Security Lists* → *Default Security List* → *Add Ingress Rules*. Zweimal
+anlegen:
 
 | Feld | Regel 1 | Regel 2 |
 | :--- | :--- | :--- |
