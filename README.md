@@ -121,21 +121,25 @@ bringen ihre eigene Datenbank mit: Testcontainers startet dafür ein echtes Post
 
 ## Deployment
 
-Für den Betrieb im Netz gibt es zwei Aufsätze auf den Docker-Stack: derselbe
-`docker compose`, davor ein Caddy für HTTPS — und auf Wunsch fertige Images aus der GitHub
-Container Registry statt eines Builds auf der Maschine.
+Zwei kostenlose Wege ins Netz:
+
+**[Northflank Free](docs/deployment-northflank.md)** — kein eigener Server: Northflank baut
+beide Dockerfiles direkt aus GitHub, betreibt PostgreSQL als Addon und übernimmt HTTPS selbst.
+Ein `git push` auf `master` genügt für ein Update. Empfohlen, wenn es schnell gehen soll.
+
+**[Eigene Maschine (Oracle Cloud Always Free)](docs/deployment.md)** — derselbe
+`docker compose`, davor ein Caddy für HTTPS:
 
 ```bash
 cp .env.prod.example .env        # auf dem Server, Domain und Passwörter eintragen
 docker compose up -d --build     # welche Dateien gelten, steht als COMPOSE_FILE in der .env
 ```
 
-Ein `git push` auf `master` testet, baut die Images für ARM und rollt sie aus
-([`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml)).
-
-Die Anleitung Schritt für Schritt — kostenlose Maschine bei Oracle Cloud, Ports, Domain,
-Deploy-Schlüssel, Sicherungen, Rollback — steht in
-[`docs/deployment.md`](docs/deployment.md).
+Ein `git push` auf `master` testet, baut die Images für ARM und rollt sie per SSH aus
+([`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml)). Erfordert eine eigene Maschine
+und deutlich mehr Einrichtung — dafür volle Kontrolle. In stark nachgefragten Regionen kann die
+Kapazität für die kostenlose ARM-Maschine tagelang ausgebucht sein (Details und ein
+Wiederholungsansatz stehen in der Anleitung).
 
 ---
 
