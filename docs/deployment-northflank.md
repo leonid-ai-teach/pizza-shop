@@ -1,3 +1,20 @@
+> **Status: nicht geeignet für den Backend-Dienst dieses Projekts, ohne zu bezahlen.**
+> Beim Durchgehen dieser Anleitung stellte sich heraus, dass der kostenlose
+> Sandbox-Deploymentplan (`nf-compute-10`) jedem Dienst nur **0,1 vCPU und 256 MB RAM**
+> zuteilt. Für eine Spring-Boot-Anwendung mit Hibernate, Flyway, Spring Security und
+> Tomcat reicht das nicht: Der Start dauerte über 4 Minuten (starke CPU-Drosselung) und
+> der Container wurde zwischendurch mit allen Anzeichen eines OOM-Kills abgeschossen
+> (17 Minuten ganz ohne Log-Ausgabe, kein sauberes Herunterfahren). Der nächste Plan mit
+> genug Speicher (`nf-compute-100-1`, 1 vCPU / 1 GB) kostet ab da $18/Monat — teurer als
+> eine eigene VPS mit voller Kontrolle.
+>
+> Frontend und Datenbank liefen dagegen problemlos im Sandbox-Plan; nur der
+> JVM-lastige Backend-Dienst sprengt den Rahmen. Diese Anleitung bleibt als Referenz
+> stehen — für ein leichteres Backend, oder falls Northflank die Sandbox-Ressourcen
+> später aufstockt, ist sie unverändert gültig. Für diesen Pizza-Shop-Stack aktuell
+> empfohlen: [Hetzner](deployment.md#warum-diese-variante) oder Warten auf Oracle-Kapazität
+> ([`deployment.md`](deployment.md), Stand gesichert unter dem Git-Tag `oracle-oci-attempt`).
+
 # Deployment auf Northflank Free — Schritt für Schritt
 
 Der zweite Weg neben Oracle Cloud (siehe [`deployment.md`](deployment.md)): Northflank baut die

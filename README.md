@@ -121,12 +121,6 @@ bringen ihre eigene Datenbank mit: Testcontainers startet dafür ein echtes Post
 
 ## Deployment
 
-Zwei kostenlose Wege ins Netz:
-
-**[Northflank Free](docs/deployment-northflank.md)** — kein eigener Server: Northflank baut
-beide Dockerfiles direkt aus GitHub, betreibt PostgreSQL als Addon und übernimmt HTTPS selbst.
-Ein `git push` auf `master` genügt für ein Update. Empfohlen, wenn es schnell gehen soll.
-
 **[Eigene Maschine (Oracle Cloud Always Free)](docs/deployment.md)** — derselbe
 `docker compose`, davor ein Caddy für HTTPS:
 
@@ -140,6 +134,10 @@ Ein `git push` auf `master` testet, baut die Images für ARM und rollt sie per S
 und deutlich mehr Einrichtung — dafür volle Kontrolle. In stark nachgefragten Regionen kann die
 Kapazität für die kostenlose ARM-Maschine tagelang ausgebucht sein (Details und ein
 Wiederholungsansatz stehen in der Anleitung).
+
+Ausprobiert und für diesen Stack **nicht geeignet**: Northflank Free
+([`docs/deployment-northflank.md`](docs/deployment-northflank.md)) — das kostenlose Kontingent
+reicht nicht für den JVM-lastigen Backend-Dienst (0,1 vCPU / 256 MB, Details im Dokument).
 
 ---
 
