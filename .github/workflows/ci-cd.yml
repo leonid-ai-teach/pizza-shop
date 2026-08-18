@@ -111,7 +111,18 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # Job-level "if:" kann nicht auf Secrets zugreifen (nur github/inputs/needs/vars), daher
+      # die Pruefung hier: ohne DEPLOY_HOST gibt es noch keinen Server (docs/deployment.md,
+      # Schritt 9) und alle folgenden Schritte werden uebersprungen statt mit einem verwirrenden
+      # SSH-Fehler abzubrechen — etwa waehrend auf Oracle-Kapazitaet gewartet wird.
+      - name: Pruefen, ob ein Server hinterlegt ist
+        id: check
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: echo "ready=${{ env.DEPLOY_HOST != '' }}" >> "$GITHUB_OUTPUT"
+
       - name: SSH vorbereiten
+        if: steps.check.outputs.ready == 'true'
         env:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
@@ -126,6 +137,7 @@ jobs:
       # Die .env wird nie angefasst — sie enthaelt die Geheimnisse und liegt nur auf dem
       # Server. Uebertragen werden nur die Dateien, die im Repository stehen.
       - name: Konfiguration auf den Server kopieren
+        if: steps.check.outputs.ready == 'true'
         env:
           TARGET: ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}
         run: |
@@ -139,6 +151,7 @@ jobs:
           ssh -i ~/.ssh/id_deploy "$TARGET" "chmod +x /opt/pizza-shop/deploy/*.sh"
 
       - name: Neu starten und pruefen
+        if: steps.check.outputs.ready == 'true'
         env:
           TARGET: ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}
         run: ssh -i ~/.ssh/id_deploy "$TARGET" "/opt/pizza-shop/deploy/remote-update.sh"
