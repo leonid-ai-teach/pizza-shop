@@ -62,7 +62,13 @@ jobs:
           service: ${{ env.SERVICE }}
           region: ${{ env.REGION }}
           image: ${{ steps.image.outputs.name }}
-          flags: --allow-unauthenticated --port=8080
+          # --session-affinity: Spring haelt die Sitzung nur im Arbeitsspeicher der jeweiligen
+          # Instanz (keine geteilte Session-Datenbank). Ohne Affinitaet kann die naechste
+          # Anfrage nach dem Login auf einer anderen Instanz landen, die das Sitzungs-Cookie
+          # nicht kennt - das Login wirkt dann erfolgreich (204), die Folgeanfrage bekommt aber
+          # trotzdem 401. Cloud Run routet mit dieser Option wiederkehrende Anfragen bevorzugt
+          # (best effort, keine Garantie) zur selben Instanz zurueck.
+          flags: --allow-unauthenticated --port=8080 --session-affinity
           env_vars: |-
             SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}
             SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}
