@@ -55,6 +55,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/admin/login").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/admin/**").hasAuthority(AdminPrincipals.ROLE_ADMIN)
+                        // Beim Cloud-Run-Weg liefert Spring die Angular-SPA selbst aus (kein
+                        // vorgelagerter nginx, der das schon uebernehmen wuerde) - die Shell,
+                        // ihre Assets und jede Client-Route muessen deshalb ohne Anmeldung
+                        // ladbar sein. Das schuetzt keine Daten: die eigentliche Absicherung
+                        // passiert ausschliesslich ueber die /api/admin/**-Regel oben.
+                        .requestMatchers(HttpMethod.GET, "/**").permitAll()
                         .anyRequest().authenticated())
                 // XHR calls must get a 401 they can react to, not an HTML redirect to a login page.
                 .exceptionHandling(ex -> ex

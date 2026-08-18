@@ -1,0 +1,43 @@
+# syntax=docker/dockerfile:1
+#
+# Nur fuer den Cloud-Run-Weg (docs/deployment-cloudrun.md): baut Angular und bettet das
+# Ergebnis in das Spring-Boot-JAR ein, das es dann selbst ausliefert. Kein nginx, kein
+# separater Frontend-Dienst - ein Container erledigt beides. Docker-Compose/Oracle nutzen
+# weiterhin backend/Dockerfile und frontend/Dockerfile unveraendert.
+#
+# Build-Kontext ist bewusst das Repository-Root (nicht backend/ oder frontend/), weil beide
+# Verzeichnisse gebraucht werden.
+
+# --- Angular bauen -----------------------------------------------------------------------
+FROM node:22-alpine AS frontend-build
+
+WORKDIR /build
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+
+COPY frontend/ .
+RUN npm run build
+
+# --- Spring Boot bauen, Angular-Ergebnis einbetten ----------------------------------------
+FROM maven:3.9-eclipse-temurin-21 AS backend-build
+
+WORKDIR /build
+COPY backend/pom.xml ./
+RUN --mount=type=cache,target=/root/.m2 mvn -B dependency:go-offline
+
+COPY backend/src ./src
+# Landet dort, wo Spring Boot automatisch danach sucht (spring.web.resources.static-locations).
+COPY --from=frontend-build /build/dist/frontend/browser ./src/main/resources/static
+RUN --mount=type=cache,target=/root/.m2 mvn -B -DskipTests package
+
+# --- Laufzeit ------------------------------------------------------------------------------
+FROM eclipse-temurin:21-jre-alpine
+
+RUN addgroup -S pizzashop && adduser -S pizzashop -G pizzashop
+
+WORKDIR /app
+COPY --from=backend-build /build/target/pizza-shop-backend-*.jar app.jar
+
+USER pizzashop
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

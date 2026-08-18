@@ -1,4 +1,5 @@
-# Rollt das Backend nach Cloud Run und das Frontend nach Firebase Hosting aus.
+# Rollt den Pizza Shop nach Cloud Run aus: ein Container, der sowohl die REST-API als auch die
+# fertig gebaute Angular-SPA ausliefert (Dockerfile.cloudrun buendelt beides in ein JAR).
 #
 # Bewusst getrennt von ci-cd.yml (der Weg zu Oracle Cloud) und bewusst nur manuell ausloesbar:
 # solange nicht klar ist, welcher der beiden Wege dauerhaft genutzt wird, soll kein Push
@@ -6,7 +7,7 @@
 # prueft jeden Push bereits; dieser Workflow setzt voraus, dass der auszurollende Commit dort
 # gruen war.
 #
-# Was vorher eingerichtet sein muss (Neon, GCP-Projekt, Firebase, Secrets): docs/deployment-cloudrun.md
+# Was vorher eingerichtet sein muss (Neon, GCP-Projekt, Secrets): docs/deployment-cloudrun.md
 name: Deploy Cloud Run
 
 on:
@@ -22,13 +23,11 @@ env:
   SERVICE: pizza-shop-backend
 
 jobs:
-  deploy-backend:
-    name: Backend nach Cloud Run
+  deploy:
+    name: Nach Cloud Run ausrollen
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    outputs:
-      image: ${{ steps.image.outputs.name }}
     steps:
       - uses: actions/checkout@v7
 
@@ -50,7 +49,10 @@ jobs:
       - name: Image bauen und pushen
         uses: docker/build-push-action@v7
         with:
-          context: ./backend
+          # Repository-Root, nicht ./backend: Dockerfile.cloudrun braucht sowohl backend/ als
+          # auch frontend/, um Angular einzubetten (docs/deployment-cloudrun.md).
+          context: .
+          file: ./Dockerfile.cloudrun
           push: true
           tags: ${{ steps.image.outputs.name }}
           cache-from: type=gha,scope=cloudrun-backend
@@ -63,12 +65,9 @@ jobs:
           region: ${{ env.REGION }}
           image: ${{ steps.image.outputs.name }}
           # Spring haelt die Sitzung nur im Arbeitsspeicher der jeweiligen Instanz (keine
-          # geteilte Session-Datenbank). --session-affinity allein reicht nicht: Firebase
-          # Hosting reicht sein Routing-Cookie beim Weiterleiten an Cloud Run nicht zuverlaessig
-          # durch (verifiziert - direkt gegen Cloud Run funktioniert Affinity einwandfrei, ueber
-          # die Firebase-Hosting-Rewrite nicht). Deshalb zusaetzlich --max-instances=1: bei der
-          # Groesse dieser App unproblematisch, und es gibt dann schlicht keine "falsche"
-          # Instanz mehr, an die eine Folgeanfrage geroutet werden koennte.
+          # geteilte Session-Datenbank). --session-affinity routet wiederkehrende Anfragen
+          # bevorzugt zur selben Instanz zurueck (best effort); --max-instances=1 macht das bei
+          # der Groesse dieser App zusaetzlich strukturell garantiert, ohne Kosten.
           flags: --allow-unauthenticated --port=8080 --session-affinity --max-instances=1
           env_vars: |-
             SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}
@@ -76,32 +75,4 @@ jobs:
             SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}
             ADMIN_BOOTSTRAP_EMAIL=${{ secrets.ADMIN_BOOTSTRAP_EMAIL }}
             ADMIN_BOOTSTRAP_PASSWORD=${{ secrets.ADMIN_BOOTSTRAP_PASSWORD }}
-            FRONTEND_URL=${{ secrets.FRONTEND_URL }}
             SERVER_FORWARD_HEADERS_STRATEGY=native
-
-  deploy-frontend:
-    name: Frontend nach Firebase Hosting
-    needs: deploy-backend
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: "22"
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: npm ci und Build
-        working-directory: frontend
-        run: |
-          npm ci
-          npm run build
-
-      - uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          firebaseServiceAccount: ${{ secrets.GCP_SA_KEY }}
-          projectId: ${{ secrets.GCP_PROJECT_ID }}
-          channelId: live

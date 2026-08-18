@@ -391,9 +391,11 @@ Damit endet TLS vor der Anwendung — und daran hängt ein Detail, das leicht ü
 
 Beide Punkte gelten unabhängig davon, welcher TLS-Terminator vorne steht — dieselbe Begründung
 trägt auch [Northflanks Edge](deployment-northflank.md) und [Google Cloud
-Run](deployment-cloudrun.md). Bei Cloud Run entfällt allerdings der erste Punkt: Firebase Hosting
-reicht `/api/**` direkt an den Cloud-Run-Dienst weiter, ganz ohne den nginx aus diesem Repository
-— das `X-Forwarded-Proto`-Passthrough betrifft dort niemanden, nur `native` bleibt nötig.
+Run](deployment-cloudrun.md). Bei Cloud Run entfällt allerdings der erste Punkt: Dort liefert
+Spring Boot die Angular-SPA gleich selbst mit aus ([`Dockerfile.cloudrun`](../Dockerfile.cloudrun)),
+ganz ohne den nginx aus diesem Repository — das `X-Forwarded-Proto`-Passthrough betrifft dort
+niemanden, nur `native` bleibt nötig, weil Cloud Runs eigenes Front-End TLS weiterhin vor dem
+Container terminiert.
 
 ---
 

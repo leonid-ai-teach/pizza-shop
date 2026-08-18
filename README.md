@@ -135,10 +135,11 @@ und deutlich mehr Einrichtung — dafür volle Kontrolle. In stark nachgefragten
 Kapazität für die kostenlose ARM-Maschine tagelang ausgebucht sein (Details und ein
 Wiederholungsansatz stehen in der Anleitung).
 
-**[Google Cloud Run](docs/deployment-cloudrun.md)** — dritter Weg, noch nicht live getestet:
-Backend auf Cloud Run (skaliert bei Inaktivität auf null Instanzen), Frontend auf Firebase
-Hosting, Datenbank extern bei Neon. Kein eigener Server, aber drei Konten statt einem und ein
-Kaltstart nach Ruhephasen — Details und der offene Status im Dokument.
+**[Google Cloud Run](docs/deployment-cloudrun.md)** — dritter Weg: ein einziger Cloud-Run-Dienst
+liefert API und die eingebettete Angular-SPA gemeinsam aus ([`Dockerfile.cloudrun`](Dockerfile.cloudrun)),
+Datenbank extern bei Neon. Skaliert bei Inaktivität auf null Instanzen herunter, kein eigener
+Server — dafür (noch) keine eigene Domain, nur die automatische `*.run.app`-Adresse. Details im
+Dokument, auch warum Firebase Hosting davor sich als ungeeignet erwies.
 
 Ausprobiert und für diesen Stack **nicht geeignet**: Northflank Free
 ([`docs/deployment-northflank.md`](docs/deployment-northflank.md)) — das kostenlose Kontingent
@@ -188,7 +189,7 @@ pizza-shop/
 ├── docker-compose.yml      kompletter Stack: PostgreSQL, Backend, Frontend
 ├── docker-compose.prod.yml Aufsatz für den Betrieb: Caddy davor, keine offenen Ports
 ├── docker-compose.registry.yml  Aufsatz: Images ziehen statt bauen
-├── firebase.json           Firebase-Hosting-Konfiguration (Cloud-Run-Weg)
+├── Dockerfile.cloudrun     ein Image aus API + Angular-SPA (nur Cloud-Run-Weg)
 ├── CONTEXT.md              Glossar der Domänenbegriffe
 ├── .env.example            benötigte Umgebungsvariablen
 └── .env.prod.example       dieselben Werte für den Betrieb im Netz

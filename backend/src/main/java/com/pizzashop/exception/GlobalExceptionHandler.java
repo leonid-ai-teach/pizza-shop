@@ -3,14 +3,17 @@ package com.pizzashop.exception;
 import com.pizzashop.dto.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.Instant;
 import java.util.stream.Collectors;
@@ -52,6 +55,24 @@ public class GlobalExceptionHandler {
             OptimisticLockingFailureException ex) {
         return errorResponse(HttpStatus.CONFLICT, "CONCURRENT_MODIFICATION",
                 "This record was changed by someone else. Please reload and try again.");
+    }
+
+    /**
+     * Only relevant when Spring itself serves the built Angular SPA (the Cloud Run image; the
+     * Docker Compose / Oracle path never reaches this, nginx resolves such paths on its own).
+     * Spring's static resource handler only serves paths that exist as an actual file, so a
+     * direct load or refresh on a client-side route like "/admin/login" - not a real file, not
+     * an API call - would otherwise surface as this exception. Handled ahead of the generic
+     * {@link #handleUnexpectedException} below despite the declaration order: Spring picks the
+     * most specific matching handler, not the first one declared.
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<?> handleMissingResource(NoResourceFoundException ex) {
+        if (ex.getResourcePath().startsWith("api/")) {
+            return errorResponse(HttpStatus.NOT_FOUND, "NOT_FOUND", "No such resource.");
+        }
+        return ResponseEntity.ok().contentType(MediaType.TEXT_HTML)
+                .body(new ClassPathResource("static/index.html"));
     }
 
     @ExceptionHandler(Exception.class)
