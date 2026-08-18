@@ -62,13 +62,14 @@ jobs:
           service: ${{ env.SERVICE }}
           region: ${{ env.REGION }}
           image: ${{ steps.image.outputs.name }}
-          # --session-affinity: Spring haelt die Sitzung nur im Arbeitsspeicher der jeweiligen
-          # Instanz (keine geteilte Session-Datenbank). Ohne Affinitaet kann die naechste
-          # Anfrage nach dem Login auf einer anderen Instanz landen, die das Sitzungs-Cookie
-          # nicht kennt - das Login wirkt dann erfolgreich (204), die Folgeanfrage bekommt aber
-          # trotzdem 401. Cloud Run routet mit dieser Option wiederkehrende Anfragen bevorzugt
-          # (best effort, keine Garantie) zur selben Instanz zurueck.
-          flags: --allow-unauthenticated --port=8080 --session-affinity
+          # Spring haelt die Sitzung nur im Arbeitsspeicher der jeweiligen Instanz (keine
+          # geteilte Session-Datenbank). --session-affinity allein reicht nicht: Firebase
+          # Hosting reicht sein Routing-Cookie beim Weiterleiten an Cloud Run nicht zuverlaessig
+          # durch (verifiziert - direkt gegen Cloud Run funktioniert Affinity einwandfrei, ueber
+          # die Firebase-Hosting-Rewrite nicht). Deshalb zusaetzlich --max-instances=1: bei der
+          # Groesse dieser App unproblematisch, und es gibt dann schlicht keine "falsche"
+          # Instanz mehr, an die eine Folgeanfrage geroutet werden koennte.
+          flags: --allow-unauthenticated --port=8080 --session-affinity --max-instances=1
           env_vars: |-
             SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}
             SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}
