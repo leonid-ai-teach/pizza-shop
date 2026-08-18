@@ -26,3 +26,7 @@ dist/
 
 # Datenbanksicherungen (deploy/backup.sh)
 backups/
+
+# Firebase: enthaelt die Projekt-ID, wird lokal per "firebase use --add" erzeugt
+.firebaserc
+.firebase/

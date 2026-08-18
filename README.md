@@ -135,6 +135,11 @@ und deutlich mehr Einrichtung — dafür volle Kontrolle. In stark nachgefragten
 Kapazität für die kostenlose ARM-Maschine tagelang ausgebucht sein (Details und ein
 Wiederholungsansatz stehen in der Anleitung).
 
+**[Google Cloud Run](docs/deployment-cloudrun.md)** — dritter Weg, noch nicht live getestet:
+Backend auf Cloud Run (skaliert bei Inaktivität auf null Instanzen), Frontend auf Firebase
+Hosting, Datenbank extern bei Neon. Kein eigener Server, aber drei Konten statt einem und ein
+Kaltstart nach Ruhephasen — Details und der offene Status im Dokument.
+
 Ausprobiert und für diesen Stack **nicht geeignet**: Northflank Free
 ([`docs/deployment-northflank.md`](docs/deployment-northflank.md)) — das kostenlose Kontingent
 reicht nicht für den JVM-lastigen Backend-Dienst (0,1 vCPU / 256 MB, Details im Dokument).
@@ -167,18 +172,23 @@ pizza-shop/
 │       ├── checkout/       Kasse, Bestellbestätigung
 │       └── admin/          Admin-Bereich (lazy geladen)
 ├── .github/workflows/      Tests, Images bauen, ausrollen (GitHub Actions)
-├── deploy/                 Betrieb im Netz
+│   ├── ci-cd.yml           Tests + Oracle-Weg (SSH-Ausrollen)
+│   └── deploy-cloudrun.yml Cloud-Run-Weg (manuell ausgelöst)
+├── deploy/                 Betrieb im Netz (Oracle-Weg)
 │   ├── Caddyfile           TLS-Terminierung, Sicherheits-Header
 │   ├── remote-update.sh    ein Ausrollvorgang auf der Maschine
 │   └── backup.sh           tägliche Datenbanksicherung
 ├── docs/
 │   ├── entwicklerdoku.md   technische Doku für Mitentwickler
-│   ├── deployment.md       Anleitung für den Betrieb im Netz
+│   ├── deployment.md       Anleitung: Oracle Cloud
+│   ├── deployment-northflank.md  Anleitung: Northflank (nicht geeignet, Referenz)
+│   ├── deployment-cloudrun.md    Anleitung: Google Cloud Run
 │   ├── adr/                Architekturentscheidungen
 │   └── specs/              Feature-Specs
 ├── docker-compose.yml      kompletter Stack: PostgreSQL, Backend, Frontend
 ├── docker-compose.prod.yml Aufsatz für den Betrieb: Caddy davor, keine offenen Ports
 ├── docker-compose.registry.yml  Aufsatz: Images ziehen statt bauen
+├── firebase.json           Firebase-Hosting-Konfiguration (Cloud-Run-Weg)
 ├── CONTEXT.md              Glossar der Domänenbegriffe
 ├── .env.example            benötigte Umgebungsvariablen
 └── .env.prod.example       dieselben Werte für den Betrieb im Netz

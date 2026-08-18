@@ -1,3 +1,9 @@
+server:
+  # Cloud Run reicht den Port, auf dem der Container lauschen soll, ueber PORT durch.
+  # Ohne diese Zeile bliebe es beim Spring-Boot-Standard 8080 - trifft sich meist, aber nur
+  # zufaellig.
+  port: ${PORT:8080}
+
 spring:
   application:
     name: pizza-shop-backend

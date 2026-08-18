@@ -389,6 +389,12 @@ Damit endet TLS vor der Anwendung — und daran hängt ein Detail, das leicht ü
   Tomcat, und der entscheidet nach seiner eigenen. `native` setzt schon dort an
   (`RemoteIpValve`), womit beide Cookies — `JSESSIONID` und `XSRF-TOKEN` — `Secure` tragen.
 
+Beide Punkte gelten unabhängig davon, welcher TLS-Terminator vorne steht — dieselbe Begründung
+trägt auch [Northflanks Edge](deployment-northflank.md) und [Google Cloud
+Run](deployment-cloudrun.md). Bei Cloud Run entfällt allerdings der erste Punkt: Firebase Hosting
+reicht `/api/**` direkt an den Cloud-Run-Dienst weiter, ganz ohne den nginx aus diesem Repository
+— das `X-Forwarded-Proto`-Passthrough betrifft dort niemanden, nur `native` bleibt nötig.
+
 ---
 
 ## Offene Punkte
