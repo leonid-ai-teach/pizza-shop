@@ -137,9 +137,9 @@ Wiederholungsansatz stehen in der Anleitung).
 
 **[Google Cloud Run](docs/deployment-cloudrun.md)** — dritter Weg: ein einziger Cloud-Run-Dienst
 liefert API und die eingebettete Angular-SPA gemeinsam aus ([`Dockerfile.cloudrun`](Dockerfile.cloudrun)),
-Datenbank extern bei Neon. Skaliert bei Inaktivität auf null Instanzen herunter, kein eigener
-Server — dafür (noch) keine eigene Domain, nur die automatische `*.run.app`-Adresse. Details im
-Dokument, auch warum Firebase Hosting davor sich als ungeeignet erwies.
+Datenbank extern bei Neon, eigene Domain über DuckDNS. Skaliert bei Inaktivität auf null Instanzen
+herunter, kein eigener Server. Anleitung im Dokument, Hintergründe und Entscheidungen (u. a. warum
+Firebase Hosting davor sich als ungeeignet erwies) im [Architektur-Bericht](docs/architektur-cloudrun.md).
 
 Ausprobiert und für diesen Stack **nicht geeignet**: Northflank Free
 ([`docs/deployment-northflank.md`](docs/deployment-northflank.md)) — das kostenlose Kontingent
@@ -184,6 +184,7 @@ pizza-shop/
 │   ├── deployment.md       Anleitung: Oracle Cloud
 │   ├── deployment-northflank.md  Anleitung: Northflank (nicht geeignet, Referenz)
 │   ├── deployment-cloudrun.md    Anleitung: Google Cloud Run
+│   ├── architektur-cloudrun.md   Hintergrundbericht zum Cloud-Run-Weg
 │   ├── adr/                Architekturentscheidungen
 │   └── specs/              Feature-Specs
 ├── docker-compose.yml      kompletter Stack: PostgreSQL, Backend, Frontend

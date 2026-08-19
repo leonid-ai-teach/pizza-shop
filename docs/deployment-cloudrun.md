@@ -23,7 +23,9 @@ wäre nie über eine Folgeanfrage hinaus gültig geblieben. Ein einzelner Cloud-
 Problem, statt es zu umschiffen.
 
 Für die Technik dahinter (Cookies, `X-Forwarded-Proto`) siehe
-[Entwickler-Doku](entwicklerdoku.md#betrieb-im-netz).
+[Entwickler-Doku](entwicklerdoku.md#betrieb-im-netz). Für die Hintergründe hinter den
+Entscheidungen dieses Wegs (u. a. warum kein Firebase Hosting) siehe den
+[Architektur-Bericht](architektur-cloudrun.md).
 
 ---
 
