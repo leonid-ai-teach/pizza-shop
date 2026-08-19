@@ -18,7 +18,9 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  REGION: europe-west3
+  # europe-west1, nicht europe-west3 (Frankfurt): nur eine Teilmenge der Regionen unterstuetzt
+  # Cloud Runs Domain-Mapping, Frankfurt gehoert nicht dazu (docs/deployment-cloudrun.md).
+  REGION: europe-west1
   REPOSITORY: pizza-shop
   SERVICE: pizza-shop-backend
 

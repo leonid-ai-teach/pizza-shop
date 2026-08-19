@@ -45,6 +45,7 @@ Für die Technik dahinter (Cookies, `X-Forwarded-Proto`) siehe
 | Workflow manuell auslösen | https://github.com/leonid-ai-teach/pizza-shop/actions/workflows/deploy-cloudrun.yml |
 | Cloud-Run-Freikontingent | https://cloud.google.com/run/pricing |
 | Neon-Freikontingent | https://neon.tech/pricing |
+| Kostenlose Domain (optional, Schritt 8) | https://www.duckdns.org/ |
 
 ---
 
@@ -132,7 +133,7 @@ gefragt) jeweils auf **Aktivieren** klicken:
 | Name | `pizza-shop` |
 | Format | Docker |
 | Modus | Standard |
-| Region | **europe-west3** (Frankfurt) — muss zur Cloud-Run-Region passen, siehe Workflow |
+| Region | **europe-west1** (Belgien) — muss zur Cloud-Run-Region passen, siehe Workflow. Nicht Frankfurt: Cloud Runs Domain-Mapping (Schritt 8) unterstützt nur eine Teilmenge der Regionen, Frankfurt gehört nicht dazu |
 
 ## Schritt 5: Dienstkonto für GitHub Actions
 
@@ -176,6 +177,35 @@ sechsmal, für jedes Secret einmal:
 > **Prüfen:** Die Cloud-Run-Adresse öffnen — die Speisekarte muss laden. Danach `/admin` mit
 > `ADMIN_BOOTSTRAP_EMAIL`/`ADMIN_BOOTSTRAP_PASSWORD` aus Schritt 6 anmelden.
 
+## Schritt 8 (optional): Eigene Domain über DuckDNS
+
+Statt der technischen `*.run.app`-Adresse eine kostenlose, hübschere Domain — **nur in
+unterstützten Regionen möglich**, deshalb liegt der Dienst in `europe-west1`, nicht in
+Frankfurt (Details in der Fußnote unten).
+
+1. **https://www.duckdns.org/** — mit GitHub anmelden, eine Subdomain anlegen, z. B.
+   `pizza-shop.duckdns.org`.
+2. Besitz bei Google bestätigen:
+   ```bash
+   gcloud domains verify pizza-shop.duckdns.org
+   ```
+   Öffnet die Google Search Console; dort einen TXT-Eintrag anzeigen lassen und bei DuckDNS unter
+   der eigenen Subdomain als TXT-Record eintragen.
+3. Domain zuordnen:
+   ```bash
+   gcloud beta run domain-mappings create --service=pizza-shop-backend --domain=pizza-shop.duckdns.org --region=europe-west1
+   ```
+   Der Befehl gibt einen CNAME-Eintrag aus (Ziel meist `ghs.googlehosted.com`) — den bei DuckDNS
+   für die Subdomain eintragen.
+4. Zertifikat kommt automatisch von Google, dauert je nach DNS-Propagation ein paar Minuten bis
+   Stunden.
+
+> Cloud Runs Domain-Mapping unterstützt nur eine Teilmenge der Regionen (u. a. `europe-west1`,
+> `europe-north1`, `europe-west4`, aber **nicht** `europe-west3`/Frankfurt) — deshalb die
+> Regionswahl oben. Laut Google selbst ist das Feature zudem noch "Preview", nicht offiziell für
+> Produktivbetrieb empfohlen (mögliche Latenz-Einschränkungen) — für ein kleines Projekt mit
+> überschaubarem Traffic unproblematisch.
+
 ---
 
 ## Updates ausrollen
@@ -209,7 +239,7 @@ anderen beiden Wegen.
 | Symptom | Ursache |
 | :--- | :--- |
 | Workflow bricht bei "Nach Cloud Run ausrollen" mit `PERMISSION_DENIED` ab | Dienstkonto hat nicht alle drei Rollen aus Schritt 5 — insbesondere `Service Account User` wird oft vergessen |
-| `docker push` schlägt mit `unauthorized`/`denied` fehl | Artifact Registry API nicht aktiviert (Schritt 3), oder Region im Workflow (`europe-west3`) passt nicht zur Region des Repositorys (Schritt 4) |
+| `docker push` schlägt mit `unauthorized`/`denied` fehl | Artifact Registry API nicht aktiviert (Schritt 3), oder Region im Workflow (`europe-west1`) passt nicht zur Region des Repositorys (Schritt 4) |
 | Seite lädt, aber `/api/pizzas` liefert 404 | Sollte mit `Dockerfile.cloudrun` nicht mehr vorkommen (ein Prozess, kein Routing dazwischen) — falls doch, `docker build -f Dockerfile.cloudrun .` lokal nachvollziehen |
 | Direkter Aufruf einer Angular-Route (z. B. `/admin/login` per Lesezeichen oder Neuladen) liefert 404 statt der Seite | `GlobalExceptionHandler.handleMissingResource` prüfen — fängt `NoResourceFoundException` ab und liefert `index.html` aus, außer der Pfad beginnt mit `/api/` |
 | Admin-Login setzt keine Sitzung | Workflow prüfen — `SERVER_FORWARD_HEADERS_STRATEGY=native` muss unter den `env_vars` beim Cloud-Run-Deploy-Schritt stehen |
