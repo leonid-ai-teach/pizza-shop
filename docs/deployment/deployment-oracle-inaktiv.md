@@ -9,8 +9,8 @@ Beschrieben ist die **Oracle Cloud Always Free**-Maschine, weil sie dauerhaft ni
 Auf jedem anderen Ubuntu-Server (Hetzner, Netcup, eigener Rechner am Anschluss) sind nur die
 Schritte 3 und 4 andere; alles übrige ist identisch.
 
-Für die lokale Einrichtung siehe [README](../README.md), für die Technik dahinter die
-[Entwickler-Doku](entwicklerdoku.md).
+Für die lokale Einrichtung siehe [README](../../README.md), für die Technik dahinter die
+[Entwickler-Doku](../entwicklerdoku.md).
 
 ---
 
@@ -60,13 +60,13 @@ internen Compose-Netz und veröffentlichen keinen einzigen Port.
 
 | Datei | Rolle |
 | :--- | :--- |
-| [`docker-compose.prod.yml`](../docker-compose.prod.yml) | Aufsatz auf `docker-compose.yml`: Caddy davor, nginx ohne Host-Port |
-| [`docker-compose.registry.yml`](../docker-compose.registry.yml) | zweiter Aufsatz: fertige Images ziehen statt selbst bauen |
-| [`deploy/Caddyfile`](../deploy/Caddyfile) | Domain, Zertifikat, Sicherheits-Header |
-| [`deploy/remote-update.sh`](../deploy/remote-update.sh) | ein Ausrollvorgang: ziehen, starten, nachsehen ob es lebt |
-| [`deploy/backup.sh`](../deploy/backup.sh) | `pg_dump` mit Aufräumen alter Sicherungen |
-| [`.github/workflows/ci-cd.yml`](../.github/workflows/ci-cd.yml) | Tests, Images, Ausrollen |
-| [`.env.prod.example`](../.env.prod.example) | Vorlage für die `.env` auf der Maschine |
+| [`docker-compose.prod.yml`](../../docker-compose.prod.yml) | Aufsatz auf `docker-compose.yml`: Caddy davor, nginx ohne Host-Port |
+| [`docker-compose.registry.yml`](../../docker-compose.registry.yml) | zweiter Aufsatz: fertige Images ziehen statt selbst bauen |
+| [`deploy/Caddyfile`](../../deploy/Caddyfile) | Domain, Zertifikat, Sicherheits-Header |
+| [`deploy/remote-update.sh`](../../deploy/remote-update.sh) | ein Ausrollvorgang: ziehen, starten, nachsehen ob es lebt |
+| [`deploy/backup.sh`](../../deploy/backup.sh) | `pg_dump` mit Aufräumen alter Sicherungen |
+| [`.github/workflows/ci-cd.yml`](../../.github/workflows/ci-cd.yml) | Tests, Images, Ausrollen |
+| [`.env.prod.example`](../../.env.prod.example) | Vorlage für die `.env` auf der Maschine |
 
 **Zeitbedarf:** Teil A etwa eine Stunde (das meiste ist Warten auf Oracle), Teil B eine
 Viertelstunde. Danach dauert ein Deployment ungefähr fünf Minuten und läuft von allein.
@@ -75,7 +75,7 @@ Weil TLS vor der Anwendung endet, muss das Backend erfahren, dass der Browser `h
 gesprochen hat — sonst verlieren `JSESSIONID` und `XSRF-TOKEN` ihr `Secure`-Flag. Dafür sorgen
 zwei Stellen: der nginx reicht ein vorhandenes `X-Forwarded-Proto` durch, und der Prod-Aufsatz
 stellt das Backend auf `SERVER_FORWARD_HEADERS_STRATEGY=native`. Begründet ist beides in der
-[Entwickler-Doku](entwicklerdoku.md#betrieb-im-netz); zu tun ist nichts.
+[Entwickler-Doku](../entwicklerdoku.md#betrieb-im-netz); zu tun ist nichts.
 
 ---
 
@@ -282,7 +282,7 @@ grep ADMIN_BOOTSTRAP .env
 
 **Die beiden ausgegebenen Zeilen wegspeichern** — das Admin-Passwort steht danach nur noch in
 dieser Datei. Alle Felder samt Erklärung stehen in
-[`.env.prod.example`](../.env.prod.example).
+[`.env.prod.example`](../../.env.prod.example).
 
 Dann starten. Ein `-f` braucht es nicht: welche Compose-Dateien gelten, steht als
 `COMPOSE_FILE` in der `.env`.
@@ -439,7 +439,7 @@ einstellbar). Damit sie einen Ausfall der Maschine überstehen, gehören sie reg
 woandershin — im Always-Free-Kontingent bietet sich der
 [Object Storage](https://cloud.oracle.com/object-storage/buckets) an (20 GB), sonst `rsync` auf
 den eigenen Rechner. Das Zurückspielen steht im Kopf von
-[`deploy/backup.sh`](../deploy/backup.sh); es **überschreibt** den aktuellen Stand, vorher also
+[`deploy/backup.sh`](../../deploy/backup.sh); es **überschreibt** den aktuellen Stand, vorher also
 erst eine frische Sicherung ziehen.
 
 ## Neue Version
@@ -499,7 +499,7 @@ df -h /                                # Platte
 | :--- | :--- |
 | Seite lädt gar nicht | Ports: [Security List](https://cloud.oracle.com/networking/vcns) **und** iptables (Schritt 4) — meist fehlt das zweite |
 | Caddy meldet ACME-Fehler | A-Record zeigt nicht auf die Maschine (https://dnschecker.org/), oder Port 80 ist von außen zu |
-| Admin-Login schlägt fehl, obwohl das Passwort stimmt | Das Passwort aus der `.env` gilt nur beim ersten Anlegen; danach zählt das geänderte. Weg zurück: [Entwickler-Doku](entwicklerdoku.md#admin_bootstrap_password-gilt-nur-beim-anlegen) |
+| Admin-Login schlägt fehl, obwohl das Passwort stimmt | Das Passwort aus der `.env` gilt nur beim ersten Anlegen; danach zählt das geänderte. Weg zurück: [Entwickler-Doku](../entwicklerdoku.md#admin_bootstrap_password-gilt-nur-beim-anlegen) |
 | Actions bricht bei „Ausrollen" ab | [Secrets](https://github.com/DEIN-KONTO/pizza-shop/settings/secrets/actions) prüfen; `DEPLOY_KNOWN_HOSTS` muss zur IP passen. Nach einem Neuaufsetzen der Maschine ändert sich der Fingerabdruck |
 | Maschine zieht die Images nicht (`denied`) | Pakete stehen noch auf privat → https://github.com/DEIN-KONTO?tab=packages, Schritt 10 |
 | „no matching manifest for linux/arm64" | ein Image ohne ARM-Variante wurde ergänzt — Alternative suchen oder auf eine AMD-Shape wechseln (dann nicht mehr Always Free) |

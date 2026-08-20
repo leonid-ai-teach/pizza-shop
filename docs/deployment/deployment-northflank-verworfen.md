@@ -12,12 +12,12 @@
 > JVM-lastige Backend-Dienst sprengt den Rahmen. Diese Anleitung bleibt als Referenz
 > stehen — für ein leichteres Backend, oder falls Northflank die Sandbox-Ressourcen
 > später aufstockt, ist sie unverändert gültig. Für diesen Pizza-Shop-Stack aktuell
-> empfohlen: [Hetzner](deployment.md#warum-diese-variante) oder Warten auf Oracle-Kapazität
-> ([`deployment.md`](deployment.md), Stand gesichert unter dem Git-Tag `oracle-oci-attempt`).
+> empfohlen: [Hetzner](deployment-oracle-inaktiv.md#warum-diese-variante) oder Warten auf Oracle-Kapazität
+> ([`deployment-oracle-inaktiv.md`](deployment-oracle-inaktiv.md), Stand gesichert unter dem Git-Tag `oracle-oci-attempt`).
 
 # Deployment auf Northflank Free — Schritt für Schritt
 
-Der zweite Weg neben Oracle Cloud (siehe [`deployment.md`](deployment.md)): Northflank baut die
+Der zweite Weg neben Oracle Cloud (siehe [`deployment-oracle-inaktiv.md`](deployment-oracle-inaktiv.md)): Northflank baut die
 zwei Images direkt aus dem GitHub-Repository, betreibt eine PostgreSQL-Datenbank als Addon und
 terminiert HTTPS selbst. Kein eigener Server, kein Caddy, kein SSH, kein GitHub-Actions-Workflow
 nötig — ein Push auf `master` baut und rollt automatisch aus.
@@ -26,9 +26,9 @@ Der **Developer-Sandbox-Plan** ist dauerhaft kostenlos und bringt genau das, was
 braucht: 2 Dienste, 1 Datenbank, immer an (kein Einschlafen wie bei Render). Passt exakt zu
 unseren zwei Diensten (Backend, Frontend) plus einer Postgres.
 
-Für die Technik dahinter siehe [Entwickler-Doku](entwicklerdoku.md), für den Oracle-Weg (falls
+Für die Technik dahinter siehe [Entwickler-Doku](../entwicklerdoku.md), für den Oracle-Weg (falls
 dort später doch Kapazität frei wird — der Stand ist unter dem Git-Tag `oracle-oci-attempt`
-gesichert) [`deployment.md`](deployment.md).
+gesichert) [`deployment-oracle-inaktiv.md`](deployment-oracle-inaktiv.md).
 
 ---
 
@@ -66,7 +66,7 @@ git push ──> Northflank baut beide Dockerfiles selbst und rollt automatisch 
 
 Wichtig: **Der Backend-Dienst muss exakt `backend` heißen.** Northflank macht jeden Dienst
 unter seinem Namen erreichbar (`<dienstname>:<port>`) — genau wie Docker Compose. Unser
-[`frontend/nginx.conf`](../frontend/nginx.conf) reicht `/api` schon an `http://backend:8080`
+[`frontend/nginx.conf`](../../frontend/nginx.conf) reicht `/api` schon an `http://backend:8080`
 weiter; bei diesem Namen ist am Code **nichts** anzupassen.
 
 ---
@@ -125,7 +125,7 @@ Danach diese Laufzeit-Variablen ergänzen — `${...}` referenziert die eben ang
 
 Der letzte Punkt ist kein Kann: Northflanks Edge terminiert TLS genau wie der Caddy im
 Oracle-Weg, und ohne `native` bekäme das `JSESSIONID`-Cookie kein `Secure`-Flag (Begründung im
-[Entwickler-Doku-Abschnitt "Betrieb im Netz"](entwicklerdoku.md#betrieb-im-netz) — die
+[Entwickler-Doku-Abschnitt "Betrieb im Netz"](../entwicklerdoku.md#betrieb-im-netz) — die
 Erklärung gilt unabhängig davon, welcher Reverse Proxy vorne steht). `FRONTEND_URL` fehlt hier
 absichtlich noch; die trägst du in Schritt 6 nach, sobald die Adresse des Frontend-Diensts
 feststeht.
@@ -181,7 +181,7 @@ Danach `FRONTEND_URL` beim `backend`-Dienst auf die eigene Domain umstellen (Sch
 ## Updates ausrollen
 
 Ein `git push` auf `master` genügt — beide Dienste haben CI/CD ab Werk aktiviert und bauen die
-neuesten Commits automatisch. Der [GitHub-Actions-Workflow](../.github/workflows/ci-cd.yml)
+neuesten Commits automatisch. Der [GitHub-Actions-Workflow](../../.github/workflows/ci-cd.yml)
 bleibt trotzdem sinnvoll: Er lässt weiterhin bei jedem Push die 87 Backend- und 54
 Frontend-Tests laufen, bevor Northflank überhaupt zu bauen anfängt. Nur die Bauen- und
 Ausrollen-Jobs darin sind für diesen Weg ohne Wirkung — die brauchte der Oracle-Weg mit seinem
@@ -213,6 +213,6 @@ die Zugangsdaten für einen externen `pg_dump`.
 
 Northflank Free ist die einzige der geprüften Optionen, die **ohne eigenen Server und ohne
 Wartezeit auf Kapazität** dauerhaft kostenlos bleibt (Details und die anderen geprüften
-Anbieter stehen im Abschnitt ["Warum diese Variante"](deployment.md#warum-diese-variante) in
+Anbieter stehen im Abschnitt ["Warum diese Variante"](deployment-oracle-inaktiv.md#warum-diese-variante) in
 der Oracle-Anleitung). Der Preis dafür: fest bei 2 Diensten und 1 Datenbank, keine eigene
 Kontrolle über die Maschine, und die freie Stufe kann sich ändern — genau wie bei Oracle.

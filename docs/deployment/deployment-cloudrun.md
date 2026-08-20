@@ -1,7 +1,7 @@
 # Deployment auf Google Cloud Run — Schritt für Schritt
 
-Der dritte Weg neben Oracle Cloud ([`deployment.md`](deployment.md)) und Northflank
-([`deployment-northflank.md`](deployment-northflank.md), dort ungeeignet befunden). Cloud Run
+Der dritte Weg neben Oracle Cloud ([`deployment-oracle-inaktiv.md`](deployment-oracle-inaktiv.md)) und Northflank
+([`deployment-northflank-verworfen.md`](deployment-northflank-verworfen.md), dort ungeeignet befunden). Cloud Run
 skaliert bei Inaktivität auf null Instanzen herunter — dadurch bleibt eine kleine App wie diese
 dauerhaft im echten Freikontingent.
 
@@ -10,7 +10,7 @@ Zwei Bausteine, zwei Anbieter:
 | Baustein | Läuft bei | Warum |
 | :--- | :--- | :--- |
 | Datenbank | **Neon** (externes, serverloses PostgreSQL) | Cloud-Run-Instanzen sind zustandslos und verschwinden bei Null-Traffic komplett — eine PostgreSQL darin würde bei jedem Scale-to-Zero ihre Daten verlieren. Googles verwalteter Cloud-SQL-Dienst wäre die Alternative, kostet aber ohne Freikontingent ab ca. 8 €/Monat. |
-| Backend **und** Frontend | **Cloud Run**, ein einziger Dienst | [`Dockerfile.cloudrun`](../Dockerfile.cloudrun) bettet die fertig gebaute Angular-SPA direkt ins Spring-Boot-JAR ein — Spring liefert sie selbst aus. Ein Container, kein nginx, kein zweiter Dienst. |
+| Backend **und** Frontend | **Cloud Run**, ein einziger Dienst | [`Dockerfile.cloudrun`](../../Dockerfile.cloudrun) bettet die fertig gebaute Angular-SPA direkt ins Spring-Boot-JAR ein — Spring liefert sie selbst aus. Ein Container, kein nginx, kein zweiter Dienst. |
 
 **Warum kein Firebase Hosting davor:** Naheliegend wäre gewesen, wie bei Northflank einen
 Frontend-Dienst vor die API zu stellen — bei Cloud Run böte sich dafür Firebase Hosting mit einer
@@ -23,7 +23,7 @@ wäre nie über eine Folgeanfrage hinaus gültig geblieben. Ein einzelner Cloud-
 Problem, statt es zu umschiffen.
 
 Für die Technik dahinter (Cookies, `X-Forwarded-Proto`) siehe
-[Entwickler-Doku](entwicklerdoku.md#betrieb-im-netz). Für die Hintergründe hinter den
+[Entwickler-Doku](../entwicklerdoku.md#betrieb-im-netz). Für die Hintergründe hinter den
 Entscheidungen dieses Wegs (u. a. warum kein Firebase Hosting) siehe den
 [Architektur-Bericht](architektur-cloudrun.md).
 
@@ -171,7 +171,7 @@ sechsmal, für jedes Secret einmal:
 
 1. **https://github.com/leonid-ai-teach/pizza-shop/actions/workflows/deploy-cloudrun.yml** →
    **Run workflow** → auf `master` ausführen.
-2. Der Lauf baut [`Dockerfile.cloudrun`](../Dockerfile.cloudrun) (Angular + Spring Boot in einem
+2. Der Lauf baut [`Dockerfile.cloudrun`](../../Dockerfile.cloudrun) (Angular + Spring Boot in einem
    Image), pusht es nach Artifact Registry und rollt es nach Cloud Run aus.
 3. Die Adresse steht danach in der Konsole: **https://console.cloud.google.com/run** →
    `pizza-shop-backend` → oben auf der Seite.

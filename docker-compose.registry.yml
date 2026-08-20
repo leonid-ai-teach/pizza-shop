@@ -5,7 +5,7 @@
 #   COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml:docker-compose.registry.yml
 #
 # Danach genuegt auf dem Server ein blankes "docker compose up -d". Anleitung und die noetigen
-# Bildnamen: docs/deployment.md
+# Bildnamen: docs/deployment/deployment-oracle-inaktiv.md
 
 services:
   backend:

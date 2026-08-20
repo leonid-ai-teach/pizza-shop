@@ -65,7 +65,7 @@ Zwei denkbare Auswege wurden verworfen:
   der gesamten, bereits mit 87 Backend-Tests abgesicherten Session-basierten Authentifizierung
   nur wegen eines Hosting-Details — unverhältnismäßig für dieses Projekt.
 
-Stattdessen: **Firebase Hosting ganz weglassen.** [`Dockerfile.cloudrun`](../Dockerfile.cloudrun)
+Stattdessen: **Firebase Hosting ganz weglassen.** [`Dockerfile.cloudrun`](../../Dockerfile.cloudrun)
 baut die Angular-SPA und bettet das Ergebnis direkt in das Spring-Boot-JAR ein
 (`src/main/resources/static`) — Spring liefert sie selbst aus, genau wie es sonst nginx täte. Ein
 Container, kein Routing dazwischen, keine CDN-Schicht, die Cookies filtern könnte. Die bestehende
@@ -130,7 +130,7 @@ nicht nötig.
 
 ## CI/CD
 
-[`deploy-cloudrun.yml`](../.github/workflows/deploy-cloudrun.yml): ein Job, `workflow_dispatch`
+[`deploy-cloudrun.yml`](../../.github/workflows/deploy-cloudrun.yml): ein Job, `workflow_dispatch`
 (manueller Auslöser). Baut `Dockerfile.cloudrun` aus dem Repository-Root (braucht sowohl
 `backend/` als auch `frontend/`), pusht nach Artifact Registry, rollt nach Cloud Run aus.
 
@@ -175,5 +175,5 @@ abgedeckt hätte.
   ist, ob dieser Weg dauerhaft genutzt wird (siehe CI/CD oben).
 
 Verwandte Dokumente: [Schritt-für-Schritt-Anleitung](deployment-cloudrun.md),
-[Entwickler-Doku zu Cookies/`X-Forwarded-Proto`](entwicklerdoku.md#betrieb-im-netz),
-[Oracle-Weg](deployment.md), [Northflank-Versuch (verworfen)](deployment-northflank.md).
+[Entwickler-Doku zu Cookies/`X-Forwarded-Proto`](../entwicklerdoku.md#betrieb-im-netz),
+[Oracle-Weg](deployment-oracle-inaktiv.md), [Northflank-Versuch (verworfen)](deployment-northflank-verworfen.md).

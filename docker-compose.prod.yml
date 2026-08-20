@@ -6,7 +6,7 @@
 # Zertifikate selbst bei Let's Encrypt holt. Nur er veroeffentlicht noch Ports; der nginx
 # ist ausschliesslich ueber das interne Compose-Netz erreichbar.
 #
-# Braucht Compose >= 2.24 wegen "!override". Anleitung: docs/deployment.md
+# Braucht Compose >= 2.24 wegen "!override". Anleitung: docs/deployment/deployment-oracle-inaktiv.md
 
 services:
   caddy:

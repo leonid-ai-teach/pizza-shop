@@ -376,7 +376,7 @@ Zwei Details sind kein Zufall:
 
 `docker-compose.prod.yml` legt einen [Caddy](https://caddyserver.com/) davor, der TLS
 terminiert und die Zertifikate selbst besorgt; der nginx verliert dabei seinen Host-Port.
-Anleitung: [`deployment.md`](deployment.md).
+Anleitung: [`deployment-oracle-inaktiv.md`](deployment/deployment-oracle-inaktiv.md).
 
 Damit endet TLS vor der Anwendung — und daran hängt ein Detail, das leicht übersehen wird:
 
@@ -390,8 +390,8 @@ Damit endet TLS vor der Anwendung — und daran hängt ein Detail, das leicht ü
   (`RemoteIpValve`), womit beide Cookies — `JSESSIONID` und `XSRF-TOKEN` — `Secure` tragen.
 
 Beide Punkte gelten unabhängig davon, welcher TLS-Terminator vorne steht — dieselbe Begründung
-trägt auch [Northflanks Edge](deployment-northflank.md) und [Google Cloud
-Run](deployment-cloudrun.md). Bei Cloud Run entfällt allerdings der erste Punkt: Dort liefert
+trägt auch [Northflanks Edge](deployment/deployment-northflank-verworfen.md) und [Google Cloud
+Run](deployment/deployment-cloudrun.md). Bei Cloud Run entfällt allerdings der erste Punkt: Dort liefert
 Spring Boot die Angular-SPA gleich selbst mit aus ([`Dockerfile.cloudrun`](../Dockerfile.cloudrun)),
 ganz ohne den nginx aus diesem Repository — das `X-Forwarded-Proto`-Passthrough betrifft dort
 niemanden, nur `native` bleibt nötig, weil Cloud Runs eigenes Front-End TLS weiterhin vor dem

@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 #
-# Nur fuer den Cloud-Run-Weg (docs/deployment-cloudrun.md): baut Angular und bettet das
+# Nur fuer den Cloud-Run-Weg (docs/deployment/deployment-cloudrun.md): baut Angular und bettet das
 # Ergebnis in das Spring-Boot-JAR ein, das es dann selbst ausliefert. Kein nginx, kein
 # separater Frontend-Dienst - ein Container erledigt beides. Docker-Compose/Oracle nutzen
 # weiterhin backend/Dockerfile und frontend/Dockerfile unveraendert.

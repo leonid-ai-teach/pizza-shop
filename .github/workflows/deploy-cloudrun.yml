@@ -7,7 +7,7 @@
 # prueft jeden Push bereits; dieser Workflow setzt voraus, dass der auszurollende Commit dort
 # gruen war.
 #
-# Was vorher eingerichtet sein muss (Neon, GCP-Projekt, Secrets): docs/deployment-cloudrun.md
+# Was vorher eingerichtet sein muss (Neon, GCP-Projekt, Secrets): docs/deployment/deployment-cloudrun.md
 name: Deploy Cloud Run
 
 on:
@@ -19,7 +19,7 @@ concurrency:
 
 env:
   # europe-west1, nicht europe-west3 (Frankfurt): nur eine Teilmenge der Regionen unterstuetzt
-  # Cloud Runs Domain-Mapping, Frankfurt gehoert nicht dazu (docs/deployment-cloudrun.md).
+  # Cloud Runs Domain-Mapping, Frankfurt gehoert nicht dazu (docs/deployment/deployment-cloudrun.md).
   REGION: europe-west1
   REPOSITORY: pizza-shop
   SERVICE: pizza-shop-backend
@@ -52,7 +52,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           # Repository-Root, nicht ./backend: Dockerfile.cloudrun braucht sowohl backend/ als
-          # auch frontend/, um Angular einzubetten (docs/deployment-cloudrun.md).
+          # auch frontend/, um Angular einzubetten (docs/deployment/deployment-cloudrun.md).
           context: .
           file: ./Dockerfile.cloudrun
           push: true

@@ -121,8 +121,19 @@ bringen ihre eigene Datenbank mit: Testcontainers startet dafür ein echtes Post
 
 ## Deployment
 
-**[Eigene Maschine (Oracle Cloud Always Free)](docs/deployment.md)** — derselbe
-`docker compose`, davor ein Caddy für HTTPS:
+Alle Wege liegen unter [`docs/deployment/`](docs/deployment/) — der Name verrät den Status:
+ohne Zusatz und aktuell in Betrieb, `-inaktiv`/`-verworfen` heißt nicht mehr aktiv genutzt bzw.
+technisch ungeeignet befunden (Details und Gründe stehen jeweils im Dokument selbst).
+
+**Aktuell aktiv: [Google Cloud Run](docs/deployment/deployment-cloudrun.md)** — ein einziger
+Cloud-Run-Dienst liefert API und die eingebettete Angular-SPA gemeinsam aus
+([`Dockerfile.cloudrun`](Dockerfile.cloudrun)), Datenbank extern bei Neon, eigene Domain über
+DuckDNS. Skaliert bei Inaktivität auf null Instanzen herunter, kein eigener Server. Anleitung im
+Dokument, Hintergründe und Entscheidungen (u. a. warum Firebase Hosting davor sich als ungeeignet
+erwies) im [Architektur-Bericht](docs/deployment/architektur-cloudrun.md).
+
+**Inaktiv, wartet auf Kapazität: [Oracle Cloud Always Free](docs/deployment/deployment-oracle-inaktiv.md)**
+— derselbe `docker compose`, davor ein Caddy für HTTPS:
 
 ```bash
 cp .env.prod.example .env        # auf dem Server, Domain und Passwörter eintragen
@@ -132,18 +143,12 @@ docker compose up -d --build     # welche Dateien gelten, steht als COMPOSE_FILE
 Ein `git push` auf `master` testet, baut die Images für ARM und rollt sie per SSH aus
 ([`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml)). Erfordert eine eigene Maschine
 und deutlich mehr Einrichtung — dafür volle Kontrolle. In stark nachgefragten Regionen kann die
-Kapazität für die kostenlose ARM-Maschine tagelang ausgebucht sein (Details und ein
-Wiederholungsansatz stehen in der Anleitung).
+Kapazität für die kostenlose ARM-Maschine tagelang ausgebucht sein — deshalb aktuell inaktiv,
+nicht weil der Weg schlecht wäre (Details und ein Wiederholungsansatz stehen in der Anleitung).
 
-**[Google Cloud Run](docs/deployment-cloudrun.md)** — dritter Weg: ein einziger Cloud-Run-Dienst
-liefert API und die eingebettete Angular-SPA gemeinsam aus ([`Dockerfile.cloudrun`](Dockerfile.cloudrun)),
-Datenbank extern bei Neon, eigene Domain über DuckDNS. Skaliert bei Inaktivität auf null Instanzen
-herunter, kein eigener Server. Anleitung im Dokument, Hintergründe und Entscheidungen (u. a. warum
-Firebase Hosting davor sich als ungeeignet erwies) im [Architektur-Bericht](docs/architektur-cloudrun.md).
-
-Ausprobiert und für diesen Stack **nicht geeignet**: Northflank Free
-([`docs/deployment-northflank.md`](docs/deployment-northflank.md)) — das kostenlose Kontingent
-reicht nicht für den JVM-lastigen Backend-Dienst (0,1 vCPU / 256 MB, Details im Dokument).
+**Verworfen, technisch ungeeignet: [Northflank Free](docs/deployment/deployment-northflank-verworfen.md)**
+— das kostenlose Kontingent reicht nicht für den JVM-lastigen Backend-Dienst (0,1 vCPU / 256 MB,
+Details im Dokument).
 
 ---
 
@@ -181,10 +186,11 @@ pizza-shop/
 │   └── backup.sh           tägliche Datenbanksicherung
 ├── docs/
 │   ├── entwicklerdoku.md   technische Doku für Mitentwickler
-│   ├── deployment.md       Anleitung: Oracle Cloud
-│   ├── deployment-northflank.md  Anleitung: Northflank (nicht geeignet, Referenz)
-│   ├── deployment-cloudrun.md    Anleitung: Google Cloud Run
-│   ├── architektur-cloudrun.md   Hintergrundbericht zum Cloud-Run-Weg
+│   ├── deployment/         alle Deployment-Wege, Status steht im Dateinamen
+│   │   ├── deployment-cloudrun.md            aktiv
+│   │   ├── architektur-cloudrun.md           Hintergrundbericht zum aktiven Weg
+│   │   ├── deployment-oracle-inaktiv.md      inaktiv (wartet auf Kapazität)
+│   │   └── deployment-northflank-verworfen.md  verworfen (technisch ungeeignet)
 │   ├── adr/                Architekturentscheidungen
 │   └── specs/              Feature-Specs
 ├── docker-compose.yml      kompletter Stack: PostgreSQL, Backend, Frontend

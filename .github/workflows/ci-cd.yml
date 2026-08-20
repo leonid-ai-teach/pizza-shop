@@ -3,7 +3,7 @@
 # Getestet wird bei jedem Push und jedem Pull Request. Bis auf den Server geht es nur vom
 # Hauptzweig aus — und nur, wenn beide Testlaeufe gruen sind.
 #
-# Was vorher eingerichtet sein muss (Secrets, Deploy-Schluessel, Server): docs/deployment.md
+# Was vorher eingerichtet sein muss (Secrets, Deploy-Schluessel, Server): docs/deployment/deployment-oracle-inaktiv.md
 name: CI/CD
 
 on:
@@ -112,7 +112,7 @@ jobs:
       - uses: actions/checkout@v7
 
       # Job-level "if:" kann nicht auf Secrets zugreifen (nur github/inputs/needs/vars), daher
-      # die Pruefung hier: ohne DEPLOY_HOST gibt es noch keinen Server (docs/deployment.md,
+      # die Pruefung hier: ohne DEPLOY_HOST gibt es noch keinen Server (docs/deployment/deployment-oracle-inaktiv.md,
       # Schritt 9) und alle folgenden Schritte werden uebersprungen statt mit einem verwirrenden
       # SSH-Fehler abzubrechen — etwa waehrend auf Oracle-Kapazitaet gewartet wird.
       - name: Pruefen, ob ein Server hinterlegt ist
